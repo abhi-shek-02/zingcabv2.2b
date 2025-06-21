@@ -286,7 +286,7 @@ const Home = () => {
               <span>WhatsApp Booking</span>
             </a>
             <a
-              href="tel:7003371343"
+              href="tel:9903042200"
               className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 flex items-center space-x-2"
             >
               <Phone className="h-5 w-5" />

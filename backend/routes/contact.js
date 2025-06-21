@@ -11,7 +11,7 @@ router.post('/', async (req, res) => {
     if (!name || !email || !phone || !message) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required fields'
+        message: 'Missing required fields: name, email, phone, message'
       });
     }
 
@@ -24,21 +24,21 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Validate phone number
+    // Validate phone number (Indian format)
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(phone)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid phone number'
+        message: 'Invalid phone number (should be 10 digits starting with 6-9)'
       });
     }
 
     const contactData = {
-      name,
-      email,
-      phone,
-      subject: subject || 'general',
-      message,
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      phone: phone.trim(),
+      subject: subject?.trim() || 'General Inquiry',
+      message: message.trim(),
       created_at: new Date().toISOString()
     };
 
@@ -61,12 +61,76 @@ router.post('/', async (req, res) => {
       message: 'Contact form submitted successfully',
       data: {
         id: data[0].id,
+        name: data[0].name,
+        email: data[0].email,
         submitted_at: data[0].created_at
       }
     });
 
   } catch (error) {
     console.error('Contact form error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+});
+
+// Get all contact submissions (admin endpoint)
+router.get('/', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('contactustable')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to fetch contact submissions'
+      });
+    }
+
+    res.json({
+      success: true,
+      data
+    });
+
+  } catch (error) {
+    console.error('Get contact submissions error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+});
+
+// Get contact submission by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data, error } = await supabase
+      .from('contactustable')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      return res.status(404).json({
+        success: false,
+        message: 'Contact submission not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data
+    });
+
+  } catch (error) {
+    console.error('Get contact submission error:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error'

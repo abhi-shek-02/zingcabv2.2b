@@ -17,8 +17,10 @@ const Footer = () => {
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <img src="/logo.svg" alt="ZingCab" className="h-8 w-8" />
-              <span className="text-2xl font-bold">ZingCab</span>
+              <Link to="/" className="flex items-center space-x-2">
+                <img src="/zingcablogo.png" alt="ZingCab" className="h-8 w-8" />
+                <span className="text-2xl font-bold">ZingCab</span>
+              </Link>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
               Your trusted partner for comfortable and reliable intercity cab services across West Bengal and beyond.
@@ -109,8 +111,8 @@ const Footer = () => {
               <div className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 text-blue-400" />
                 <div className="text-gray-300">
+                  <div>9903042200</div>
                   <div>7003371343</div>
-                  <div>7003848501</div>
                 </div>
               </div>
               <div className="flex items-center space-x-3">

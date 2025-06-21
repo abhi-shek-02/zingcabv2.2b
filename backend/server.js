@@ -26,7 +26,7 @@ app.use(limiter);
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? ['https://magenta-fairy-a6613c.netlify.app', 'https://zingcab.in'] 
-    : ['http://localhost:5173', 'http://localhost:3000'],
+    : '*',
   credentials: true
 }));
 
@@ -66,8 +66,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  });
+}
 
 module.exports = app;

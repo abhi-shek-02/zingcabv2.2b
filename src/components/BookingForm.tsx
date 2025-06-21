@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Calendar, Car, ArrowRight, Clock, Phone, MessageCircle } from 'lucide-react';
+import { MapPin, Calendar, Car, ArrowRight, Clock, Phone, MessageCircle, AlertCircle, CheckCircle, Info, X } from 'lucide-react';
 import Modal from './Modal';
 
+interface FareData {
+  estimated_fare: number;
+  km_limit: string;
+  breakdown: any;
+}
+
+interface AllCarFares {
+  [key: string]: FareData;
+}
+
 const BookingForm = () => {
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     phone: '',
     fromCity: '',
     toCity: '',
@@ -13,16 +23,36 @@ const BookingForm = () => {
     tripType: 'oneway',
     pickupTime: '09:00',
     rentalDuration: '4hr/40km'
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
+  const [errors, setErrors] = useState<any>({});
+  const [fareData, setFareData] = useState<{
+    selected_car: FareData | null;
+    all_car_fares: AllCarFares | null;
+  }>({ selected_car: null, all_car_fares: null });
+
+  const [bookingResponseData, setBookingResponseData] = useState<any>(null);
+
+  const [apiStatus, setApiStatus] = useState({
+    isLoading: false,
+    isBooking: false,
+    error: '',
   });
-  const [estimatedFare, setEstimatedFare] = useState<number | null>(null);
-  const [fareBreakdown, setFareBreakdown] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
+
   const [modal, setModal] = useState({
     isOpen: false,
     type: 'info' as 'success' | 'error' | 'warning' | 'info',
     title: '',
     message: ''
   });
+
+  const resetForm = () => {
+    setFormData(initialFormData);
+    setErrors({});
+    setFareData({ selected_car: null, all_car_fares: null });
+    setBookingResponseData(null);
+  };
 
   const carTypes = [
     { id: 'hatchback', name: 'Hatchback', seats: '4 Seater', example: 'Wagon R' },
@@ -42,7 +72,7 @@ const BookingForm = () => {
   const tripTypes = [
     { id: 'oneway', name: 'One Way', description: 'Single destination' },
     { id: 'roundtrip', name: 'Round Trip', description: 'Go and return' },
-    { id: 'local', name: 'Local Rental', description: 'Hourly rental' },
+    { id: 'rental', name: 'Local Rental', description: 'Hourly rental' },
     { id: 'airport', name: 'Airport Transfer', description: 'Airport pickup/drop' }
   ];
 
@@ -50,7 +80,6 @@ const BookingForm = () => {
     '4hr/40km', '6hr/60km', '8hr/80km', '10hr/100km', '12hr/120km'
   ];
 
-  // Check for prefilled trip type from footer links
   useEffect(() => {
     const selectedTripType = localStorage.getItem('selectedTripType');
     if (selectedTripType) {
@@ -58,7 +87,6 @@ const BookingForm = () => {
       localStorage.removeItem('selectedTripType');
     }
 
-    // Check for prefilled route from pricing page
     const selectedRoute = localStorage.getItem('selectedRoute');
     if (selectedRoute) {
       const route = JSON.parse(selectedRoute);
@@ -66,7 +94,7 @@ const BookingForm = () => {
         ...prev, 
         fromCity: route.fromCity, 
         toCity: route.toCity,
-        carType: 'sedan' // Default to sedan
+        carType: 'sedan'
       }));
       localStorage.removeItem('selectedRoute');
     }
@@ -83,215 +111,239 @@ const BookingForm = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    setEstimatedFare(null);
-    setFareBreakdown(null);
+    setFareData({ selected_car: null, all_car_fares: null });
+    setBookingResponseData(null);
   };
 
-  const validatePhone = (phone: string) => {
-    const indianPhoneRegex = /^[6-9]\d{9}$/;
-    return indianPhoneRegex.test(phone);
+  const validateForm = (isBooking = false) => {
+    const tempErrors: any = {};
+    if (!/^[6-9]\d{9}$/.test(formData.phone)) {
+      tempErrors.phone = 'Please enter a valid 10-digit Indian mobile number.';
+    }
+    if (!formData.fromCity) {
+      tempErrors.fromCity = 'Pickup location is required.';
+    }
+    if (formData.tripType !== 'rental' && !formData.toCity) {
+      tempErrors.toCity = 'Drop location is required.';
+    }
+    if (!formData.date) {
+      tempErrors.date = 'Pickup date is required.';
+    }
+    if (formData.tripType === 'roundtrip' && !formData.returnDate) {
+      tempErrors.returnDate = 'Return date is required for round trips.';
+    }
+    if (!formData.carType) {
+      tempErrors.carType = 'Please select a car type.';
+    }
+
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
   };
 
-  const validateForm = () => {
-    if (!validatePhone(formData.phone)) {
-      showModal('warning', 'Valid Phone Required', 'Please enter a valid 10-digit Indian mobile number.');
-      return false;
-    }
-
-    if (formData.tripType === 'local') {
-      if (!formData.fromCity || !formData.date || !formData.carType || !formData.pickupTime) {
-        showModal('warning', 'Incomplete Form', 'Please fill in pickup location, date, time, and car type for local rental.');
-        return false;
-      }
-    } else {
-      if (!formData.fromCity || !formData.toCity || !formData.date || !formData.carType || !formData.pickupTime) {
-        showModal('warning', 'Incomplete Form', 'Please fill in all required fields including pickup time.');
-        return false;
-      }
-      if (formData.tripType === 'roundtrip' && !formData.returnDate) {
-        showModal('warning', 'Return Date Required', 'Please select a return date for round trip booking.');
-        return false;
-      }
-    }
-
-    // Validate date is not in the past
-    const selectedDate = new Date(formData.date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (selectedDate < today) {
-      showModal('warning', 'Invalid Date', 'Pickup date cannot be in the past.');
-      return false;
-    }
-
-    return true;
+  const formatTime12Hour = (time24: string) => {
+    if (!time24) return '';
+    const [hours, minutes] = time24.split(':');
+    const h = parseInt(hours, 10);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${String(h12).padStart(2, '0')}:${minutes} ${ampm}`;
   };
 
   const calculateFare = async () => {
     if (!validateForm()) return;
-
-    setIsLoading(true);
+    setApiStatus({ isLoading: true, isBooking: false, error: '' });
+    
     try {
-      // Mock API call for fare estimation
-      const mockFareData = {
-        estimated_fare: formData.tripType === 'local' ? 1500 : 
-                       formData.tripType === 'roundtrip' ? 3600 : 
-                       formData.tripType === 'airport' ? 800 : 2000,
-        breakdown: {
-          base_fare: formData.tripType === 'local' ? 1200 : 
-                    formData.tripType === 'roundtrip' ? 2800 : 
-                    formData.tripType === 'airport' ? 600 : 1600,
-          toll_charges: formData.tripType === 'local' || formData.tripType === 'roundtrip' ? 0 : 200,
-          state_tax: formData.tripType === 'local' || formData.tripType === 'roundtrip' ? 0 : 150,
-          gst: formData.tripType === 'local' ? 300 : 
-               formData.tripType === 'roundtrip' ? 800 : 50
-        }
+      const payload: any = {
+        service_type: formData.tripType,
+        pick_up_location: formData.fromCity,
+        drop_location: formData.toCity,
+        car_type: formData.carType,
+        journey_date: formData.date,
+        return_date: formData.returnDate,
+        pick_up_time: formatTime12Hour(formData.pickupTime),
+        mobile_number: formData.phone,
+        km_limit: 150
       };
 
-      setEstimatedFare(mockFareData.estimated_fare);
-      setFareBreakdown(mockFareData.breakdown);
-    } catch (error) {
-      console.error('Error calculating fare:', error);
-      showModal('error', 'Error', 'Failed to calculate fare. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      if (formData.tripType === 'rental') {
+        payload.rental_booking_type = formData.rentalDuration;
+      }
 
-  const generateBookingId = () => {
-    const timestamp = Date.now().toString();
-    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
-    return `ZC${timestamp.slice(-6)}${random}`;
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/fare/estimate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to calculate fare.');
+      }
+
+      setFareData(data.data);
+    } catch (error: any) {
+      setApiStatus(prev => ({ ...prev, error: error.message }));
+    } finally {
+      setApiStatus(prev => ({ ...prev, isLoading: false }));
+    }
   };
 
   const handleBooking = async () => {
-    if (!estimatedFare) {
-      await calculateFare();
+    if (!validateForm(true)) {
+      showModal('warning', 'Incomplete Form', 'Please fill all required fields before booking.');
+      return;
+    }
+    
+    if (!fareData.selected_car) {
+      showModal('info', 'Calculate Fare First', 'Please calculate the fare before booking.');
       return;
     }
 
-    if (!validateForm()) return;
-
-    setIsLoading(true);
+    setApiStatus({ isLoading: false, isBooking: true, error: '' });
+    
     try {
-      const bookingId = generateBookingId();
-      
-      // Mock booking API call
-      const bookingData = {
-        booking_id: bookingId,
+      const bookingPayload: any = {
         mobile_number: formData.phone,
         service_type: formData.tripType,
         pick_up_location: formData.fromCity,
-        drop_location: formData.tripType === 'local' ? null : formData.toCity,
+        drop_location: formData.tripType === 'rental' ? null : formData.toCity,
         journey_date: formData.date,
         return_date: formData.returnDate || null,
-        pick_up_time: formData.pickupTime,
+        pick_up_time: formatTime12Hour(formData.pickupTime),
         car_type: formData.carType,
-        rental_booking_type: formData.tripType === 'local' ? formData.rentalDuration : null,
-        estimated_fare: estimatedFare,
-        booking_source: 'website',
-        km_limit: formData.tripType === 'local' ? formData.rentalDuration.split('/')[1] : '300km',
-        booking_date: new Date().toISOString().split('T')[0]
+        estimated_fare: fareData.selected_car.estimated_fare,
+        km_limit: fareData.selected_car.km_limit,
+        booking_source: 'website'
       };
 
-      // Simulate API success
-      showModal('success', 'Booking Confirmed!', 
-        `Your booking has been confirmed with ID: ${bookingId}. Total estimated fare: ₹${estimatedFare}. Our team will contact you shortly to confirm details and arrange payment.`);
-      
-      // Reset form
-      setFormData({
-        phone: '',
-        fromCity: '',
-        toCity: '',
-        date: '',
-        returnDate: '',
-        carType: '',
-        tripType: 'oneway',
-        pickupTime: '09:00',
-        rentalDuration: '4hr/40km'
+      if (formData.tripType === 'rental') {
+        bookingPayload.rental_booking_type = formData.rentalDuration;
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/booking`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingPayload)
       });
-      setEstimatedFare(null);
-      setFareBreakdown(null);
-    } catch (error) {
-      console.error('Error creating booking:', error);
-      showModal('error', 'Booking Failed', 'Failed to create booking. Please try again or contact support.');
+      
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to create booking.');
+      }
+      
+      setBookingResponseData(data.data);
+      
+    } catch (error: any) {
+      setApiStatus(prev => ({ ...prev, error: error.message }));
+      showModal('error', 'Booking Failed', error.message);
     } finally {
-      setIsLoading(false);
+      setApiStatus(prev => ({ ...prev, isBooking: false }));
     }
   };
 
   const handleRouteSelect = (route: any) => {
-    setFormData(prev => ({ 
-      ...prev, 
-      fromCity: route.from, 
-      toCity: route.to 
+    setFormData(prev => ({
+      ...prev,
+      fromCity: route.from,
+      toCity: route.to
     }));
   };
 
   const handleTripTypeChange = (tripType: string) => {
-    setFormData(prev => ({ ...prev, tripType }));
-    setEstimatedFare(null);
-    setFareBreakdown(null);
+    console.log('Trip type changed to:', tripType);
+    setFormData(prev => ({ ...prev, tripType, carType: '', returnDate: '' }));
+    setFareData({ selected_car: null, all_car_fares: null });
+    setErrors({});
   };
 
   const getTodayDate = () => {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-6 lg:p-8 max-w-4xl mx-auto">
+    <div className="bg-white rounded-2xl shadow-xl p-6 lg:p-8 max-w-4xl mx-auto" id="booking-form">
+       {bookingResponseData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4 transform transition-all relative">
+                <button 
+                  onClick={resetForm} 
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+                <div className="p-6 pt-12 text-center">
+                    <CheckCircle className="h-16 w-16 mb-4 text-green-500 mx-auto" />
+                    <h2 className="text-2xl font-bold mb-2">Booking Confirmed!</h2>
+                    <p className="text-gray-600 mb-4">Our team will contact you shortly.</p>
+
+                    <div className="text-left bg-gray-50 p-4 rounded-lg space-y-2 mb-6">
+                        <p><strong>Booking ID:</strong> <span className="font-mono text-blue-600">{bookingResponseData.booking_id}</span></p>
+                        <p><strong>Estimated Fare:</strong> ₹{bookingResponseData.estimated_fare}</p>
+                        <p><strong>Pickup Date:</strong> {new Date(bookingResponseData.pickup_date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        <p><strong>Pickup Time:</strong> {bookingResponseData.pickup_time}</p>
+                        <p><strong>Service:</strong> {bookingResponseData.service_type} ({bookingResponseData.car_type})</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+      )}
+      <Modal {...modal} onClose={closeModal} />
+      
       <div className="mb-6 text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Book Your Ride</h2>
-        <p className="text-gray-600">Driven by Trust, Comfort in Every Mile, Through the Heart of Bengal</p>
+         <h2 className="text-2xl font-bold text-gray-900 mb-2">Book Your Ride</h2>
+         <p className="text-gray-600">Driven by Trust, Comfort in Every Mile, Through the Heart of Bengal</p>
       </div>
 
-      {/* Quick Booking Buttons */}
       <div className="mb-6 text-center">
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <a
-            href="https://wa.me/917003371343"
-            className="inline-flex items-center space-x-2 bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors duration-200"
-          >
-            <MessageCircle className="h-5 w-5" />
-            <span>Quick WhatsApp Booking</span>
-          </a>
-          <a
-            href="tel:7003371343"
-            className="inline-flex items-center space-x-2 bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-200"
-          >
-            <Phone className="h-5 w-5" />
-            <span>Quick Phone Booking</span>
-          </a>
-        </div>
+         <div className="flex flex-col sm:flex-row gap-3 justify-center">
+           <a
+             href="https://wa.me/917003371343"
+             target="_blank" rel="noopener noreferrer"
+             className="inline-flex items-center justify-center space-x-2 bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors duration-200"
+           >
+             <MessageCircle className="h-5 w-5" />
+             <span>Quick WhatsApp Booking</span>
+           </a>
+           <a
+             href="tel:9903042200"
+             className="inline-flex items-center justify-center space-x-2 bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-200"
+           >
+             <Phone className="h-5 w-5" />
+             <span>Quick Phone Booking</span>
+           </a>
+         </div>
       </div>
 
       {/* Trip Type Selection */}
-      <div className="mb-6">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {tripTypes.map(type => (
-            <div
-              key={type.id}
-              className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
-                formData.tripType === type.id
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-blue-300'
-              }`}
-              onClick={() => handleTripTypeChange(type.id)}
-            >
-              <div className="text-center">
-                <h4 className="font-semibold text-gray-900 text-sm mb-1">{type.name}</h4>
-                <p className="text-xs text-gray-600">{type.description}</p>
-              </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        {tripTypes.map(type => (
+          <div
+            key={type.id}
+            className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
+              formData.tripType === type.id
+                ? 'border-blue-500 bg-blue-50'
+                : 'border-gray-200 hover:border-blue-300'
+            }`}
+            onClick={() => handleTripTypeChange(type.id)}
+          >
+            <div className="text-center">
+              <h4 className="font-semibold text-gray-900 text-sm mb-1">{type.name}</h4>
+              <p className="text-xs text-gray-600">{type.description}</p>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
       {/* Form Fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {/* Phone Number */}
-        <div className="relative">
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
           <div className="relative">
             <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -305,12 +357,13 @@ const BookingForm = () => {
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
+          {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
         </div>
 
         {/* From City / Pickup Location */}
-        <div className="relative">
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            {formData.tripType === 'local' ? 'Pickup Location' : 'From City'}
+            {formData.tripType === 'rental' ? 'Pickup Location' : 'From City'}
           </label>
           <div className="relative">
             <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -323,11 +376,12 @@ const BookingForm = () => {
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
+          {errors.fromCity && <p className="text-red-500 text-xs mt-1">{errors.fromCity}</p>}
         </div>
-
+        
         {/* To City (hidden for local rental) */}
-        {formData.tripType !== 'local' && (
-          <div className="relative">
+        {formData.tripType !== 'rental' && (
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">To City</label>
             <div className="relative">
               <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -340,13 +394,14 @@ const BookingForm = () => {
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
+            {errors.toCity && <p className="text-red-500 text-xs mt-1">{errors.toCity}</p>}
           </div>
         )}
 
         {/* Date */}
-        <div className="relative">
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            {formData.tripType === 'local' ? 'Pickup Date' : 'Travel Date'}
+            {formData.tripType === 'rental' ? 'Pickup Date' : 'Travel Date'}
           </label>
           <div className="relative">
             <Calendar className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -359,11 +414,12 @@ const BookingForm = () => {
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
+          {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
         </div>
 
         {/* Return Date (only for round trip) */}
         {formData.tripType === 'roundtrip' && (
-          <div className="relative">
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Return Date</label>
             <div className="relative">
               <Calendar className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -376,11 +432,12 @@ const BookingForm = () => {
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
+            {errors.returnDate && <p className="text-red-500 text-xs mt-1">{errors.returnDate}</p>}
           </div>
         )}
 
         {/* Pickup Time */}
-        <div className="relative">
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Pickup Time</label>
           <div className="relative">
             <Clock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -395,8 +452,8 @@ const BookingForm = () => {
         </div>
 
         {/* Rental Duration (only for local rental) */}
-        {formData.tripType === 'local' && (
-          <div className="relative">
+        {formData.tripType === 'rental' && (
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
             <div className="relative">
               <Clock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -406,19 +463,15 @@ const BookingForm = () => {
                 onChange={handleInputChange}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
               >
-                {rentalDurations.map(duration => (
-                  <option key={duration} value={duration}>
-                    {duration}
-                  </option>
-                ))}
+                {rentalDurations.map(duration => <option key={duration} value={duration}>{duration}</option>)}
               </select>
             </div>
           </div>
         )}
 
         {/* Car Type */}
-        <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Car Type</label>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Select a Car</label>
           <div className="relative">
             <Car className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
             <select
@@ -427,135 +480,89 @@ const BookingForm = () => {
               onChange={handleInputChange}
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
             >
-              <option value="">Select Car</option>
-              {carTypes.map(car => (
-                <option key={car.id} value={car.id}>
-                  {car.name}
-                </option>
-              ))}
+              <option value="" disabled>Choose a car</option>
+              {carTypes.map(car => <option key={car.id} value={car.id}>{car.name}</option>)}
             </select>
           </div>
+          {errors.carType && <p className="text-red-500 text-xs mt-1">{errors.carType}</p>}
         </div>
       </div>
-
-      {/* Car Types Display */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        {carTypes.map(car => (
-          <div
-            key={car.id}
-            className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-              formData.carType === car.id
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-200 hover:border-blue-300'
-            }`}
-            onClick={() => setFormData(prev => ({ ...prev, carType: car.id }))}
-          >
-            <div className="flex items-center justify-center mb-2">
-              <Car className="h-8 w-8 text-blue-600" />
-            </div>
-            <h3 className="font-semibold text-center text-sm">{car.name}</h3>
-            <p className="text-xs text-gray-600 text-center">{car.seats}</p>
-            <p className="text-xs text-gray-500 text-center">{car.example}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Fare Estimate */}
-      {estimatedFare && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="font-semibold text-green-800">Estimated Fare</h3>
-              <p className="text-sm text-green-600">
-                {formData.tripType === 'roundtrip' ? 'Round Trip' : 
-                 formData.tripType === 'local' ? 'Local Rental' : 
-                 formData.tripType === 'airport' ? 'Airport Transfer' : 'One Way'} • {formData.fromCity} {formData.toCity && `to ${formData.toCity}`}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-2xl font-bold text-green-800">₹{estimatedFare}</p>
-              <p className="text-sm text-green-600">Pay ₹500 advance</p>
-            </div>
-          </div>
-          
-          {/* Fare Breakdown */}
-          {fareBreakdown && (
-            <div className="border-t border-green-200 pt-4">
-              <h4 className="font-medium text-green-800 mb-2">Fare Breakdown:</h4>
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-green-700">Base Fare:</span>
-                  <span className="text-green-800">₹{fareBreakdown.base_fare}</span>
-                </div>
-                {(formData.tripType === 'oneway' || formData.tripType === 'airport') && fareBreakdown.toll_charges > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-green-700">Toll Charges:</span>
-                    <span className="text-green-800">₹{fareBreakdown.toll_charges}</span>
-                  </div>
-                )}
-                {(formData.tripType === 'oneway' || formData.tripType === 'airport') && fareBreakdown.state_tax > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-green-700">State Tax:</span>
-                    <span className="text-green-800">₹{fareBreakdown.state_tax}</span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-green-700">GST:</span>
-                  <span className="text-green-800">₹{fareBreakdown.gst}</span>
-                </div>
-              </div>
-            </div>
-          )}
+      
+      {/* Popular Routes */}
+      <div className="mb-6">
+        <h4 className="text-sm font-semibold text-gray-600 mb-2">Popular Routes:</h4>
+        <div className="flex flex-wrap gap-2">
+          {popularRoutes.map(route => (
+            <button
+              key={`${route.from}-${route.to}`}
+              onClick={() => handleRouteSelect(route)}
+              className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full hover:bg-gray-200"
+            >
+              {route.from} <ArrowRight className="inline h-3 w-3" /> {route.to}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <button
           onClick={calculateFare}
-          disabled={isLoading}
-          className="flex-1 bg-blue-100 text-blue-700 py-3 px-6 rounded-lg font-semibold hover:bg-blue-200 transition-colors duration-200 disabled:opacity-50"
+          disabled={apiStatus.isLoading}
+          className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? 'Calculating...' : 'Get Fare Estimate'}
+          {apiStatus.isLoading && !apiStatus.isBooking ? 'Calculating...' : 'Check Fare Instantly'}
         </button>
+        
         <button
           onClick={handleBooking}
-          disabled={isLoading}
-          className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50"
+          disabled={!fareData.selected_car || apiStatus.isBooking}
+          className="bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <span>{isLoading ? 'Processing...' : estimatedFare ? 'Confirm Booking' : 'Book Your Ride'}</span>
-          <ArrowRight className="h-5 w-5" />
+          {apiStatus.isBooking ? 'Booking...' : 'Book Instantly'}
         </button>
       </div>
 
-      {/* Popular Routes (only for intercity trips) */}
-      {formData.tripType !== 'local' && (
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <h3 className="font-semibold text-gray-900 mb-4">Popular Routes</h3>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {popularRoutes.map((route, index) => (
-              <button
-                key={index}
-                onClick={() => handleRouteSelect(route)}
-                className="text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <p className="text-sm font-medium text-gray-900">
-                  {route.from} → {route.to}
-                </p>
-                <p className="text-xs text-gray-600">{route.distance} km</p>
-              </button>
-            ))}
-          </div>
+      {apiStatus.error && (
+        <div className="mb-6 text-center text-red-600 bg-red-100 p-3 rounded-lg">
+          <AlertCircle className="inline h-5 w-5 mr-2" />
+          {apiStatus.error}
         </div>
       )}
 
-      <Modal
-        isOpen={modal.isOpen}
-        onClose={closeModal}
-        type={modal.type}
-        title={modal.title}
-        message={modal.message}
-      />
+      {fareData.selected_car && (
+        <div className="mb-6 p-6 bg-blue-50 border border-blue-200 rounded-2xl">
+          <h3 className="text-xl font-bold text-center text-gray-900 mb-4">Fare Estimate</h3>
+          <div className="text-center mb-6">
+            <p className="text-4xl font-extrabold text-blue-600">
+              ₹{fareData.selected_car.estimated_fare.toLocaleString('en-IN')}
+            </p>
+            <p className="text-sm text-gray-600 mt-1">for {formData.carType} (up to {fareData.selected_car.km_limit})</p>
+          </div>
+        </div>
+      )}
+      
+       {fareData.all_car_fares && (
+         <div className="mb-4">
+            <h3 className="text-lg font-semibold text-center text-gray-800 mb-4">Other Available Cars</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+               {Object.entries(fareData.all_car_fares).map(([car, fare]) => {
+                 const carInfo = carTypes.find(c => c.id === car);
+                 if (!carInfo) return null;
+                 
+                 return (
+                  <div key={car} className={`p-4 rounded-lg border-2 ${formData.carType === car ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
+                    <h4 className="font-bold text-gray-900 text-sm">{carInfo.name}</h4>
+                    <p className="text-xs text-gray-600">{carInfo.seats}, {carInfo.example}</p>
+                    <p className="text-lg font-bold text-gray-800 mt-2">₹{fare.estimated_fare.toLocaleString('en-IN')}</p>
+                    <p className="text-xs text-gray-500">Up to {fare.km_limit}</p>
+                  </div>
+                 )
+                })}
+            </div>
+         </div>
+       )}
+
     </div>
   );
 };

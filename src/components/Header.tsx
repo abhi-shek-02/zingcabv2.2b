@@ -22,7 +22,7 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/logo.svg" alt="ZingCab" className="h-10 w-10" />
+            <img src="/zingcablogo.png" alt="ZingCab" className="h-12" />
             <span className="text-2xl font-bold text-gray-900">ZingCab</span>
           </Link>
 
@@ -46,11 +46,11 @@ const Header = () => {
           {/* Contact Button */}
           <div className="hidden md:flex items-center space-x-4">
             <a
-              href="tel:7003371343"
+              href="tel:9903042200"
               className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors"
             >
               <Phone className="h-4 w-4" />
-              <span className="font-medium">7003371343</span>
+              <span className="font-medium">9903042200</span>
             </a>
             <Link
               to="/contact"
@@ -89,11 +89,11 @@ const Header = () => {
               ))}
               <div className="pt-4 border-t border-gray-100 mt-4">
                 <a
-                  href="tel:7003371343"
+                  href="tel:9903042200"
                   className="flex items-center space-x-2 px-3 py-2 text-blue-600 font-medium"
                 >
                   <Phone className="h-4 w-4" />
-                  <span>7003371343</span>
+                  <span>9903042200</span>
                 </a>
               </div>
             </nav>

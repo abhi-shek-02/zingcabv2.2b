@@ -9,8 +9,51 @@ const Contact = () => {
     message: '',
     subject: 'general'
   });
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [formStatus, setFormStatus] = useState({
+    isSubmitted: false,
+    isLoading: false,
+    error: ''
+  });
+  const [errors, setErrors] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  });
+
+  const validate = () => {
+    let tempErrors = { name: '', email: '', phone: '', message: '' };
+    let isValid = true;
+
+    if (!formData.name.trim()) {
+      tempErrors.name = 'Name is required.';
+      isValid = false;
+    }
+
+    if (!formData.email.trim()) {
+      tempErrors.email = 'Email is required.';
+      isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      tempErrors.email = 'Email is not valid.';
+      isValid = false;
+    }
+
+    if (!formData.phone.trim()) {
+      tempErrors.phone = 'Phone number is required.';
+      isValid = false;
+    } else if (!/^[6-9]\d{9}$/.test(formData.phone)) {
+      tempErrors.phone = 'Please enter a valid 10-digit Indian mobile number.';
+      isValid = false;
+    }
+    
+    if (!formData.message.trim()) {
+      tempErrors.message = 'Message is required.';
+      isValid = false;
+    }
+
+    setErrors(tempErrors);
+    return isValid;
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -19,13 +62,28 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (!validate()) {
+      return;
+    }
+    
+    setFormStatus({ isSubmitted: false, isLoading: true, error: '' });
     
     try {
-      // Mock API call for contact form submission
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
       
-      setIsSubmitted(true);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong');
+      }
+      
+      setFormStatus({ isSubmitted: true, isLoading: false, error: '' });
       setFormData({
         name: '',
         email: '',
@@ -33,12 +91,10 @@ const Contact = () => {
         message: '',
         subject: 'general'
       });
-      setTimeout(() => setIsSubmitted(false), 5000);
-    } catch (error) {
+      setTimeout(() => setFormStatus(prev => ({ ...prev, isSubmitted: false })), 5000);
+    } catch (error: any) {
       console.error('Error sending message:', error);
-      alert('Failed to send message. Please try again.');
-    } finally {
-      setIsLoading(false);
+      setFormStatus({ isSubmitted: false, isLoading: false, error: error.message || 'Failed to send message. Please try again.' });
     }
   };
 
@@ -46,9 +102,9 @@ const Contact = () => {
     {
       icon: Phone,
       title: 'Call Us',
-      details: ['7003371343', '7003848501'],
+      details: ['9903042200', '7003371343'],
       description: '24/7 Booking Support',
-      action: 'tel:7003371343'
+      action: 'tel:9903042200'
     },
     {
       icon: MessageCircle,
@@ -149,7 +205,7 @@ const Contact = () => {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-2xl shadow-lg p-8">
                 <h2 className="text-3xl font-bold text-gray-900 mb-6">Send us a Message</h2>
-                {isSubmitted ? (
+                {formStatus.isSubmitted ? (
                   <div className="text-center py-8">
                     <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
                     <h3 className="text-2xl font-semibold text-green-800 mb-2">Message Sent!</h3>
@@ -157,6 +213,11 @@ const Contact = () => {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">
+                    {formStatus.error && (
+                      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg" role="alert">
+                        <p>{formStatus.error}</p>
+                      </div>
+                    )}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
@@ -166,9 +227,10 @@ const Contact = () => {
                           value={formData.name}
                           onChange={handleInputChange}
                           required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className={`w-full px-4 py-3 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                           placeholder="Your full name"
                         />
+                        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
@@ -178,9 +240,10 @@ const Contact = () => {
                           value={formData.phone}
                           onChange={handleInputChange}
                           required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className={`w-full px-4 py-3 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                           placeholder="7003371343"
                         />
+                        {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                       </div>
                     </div>
                     <div>
@@ -191,9 +254,10 @@ const Contact = () => {
                         value={formData.email}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className={`w-full px-4 py-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                         placeholder="your.email@example.com"
                       />
+                      {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
@@ -217,18 +281,25 @@ const Contact = () => {
                         value={formData.message}
                         onChange={handleInputChange}
                         required
-                        rows={5}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                        placeholder="Tell us how we can help you..."
-                      />
+                        rows={4}
+                        className={`w-full px-4 py-3 border ${errors.message ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                        placeholder="How can we help you?"
+                      ></textarea>
+                      {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
                     </div>
                     <button
                       type="submit"
-                      disabled={isLoading}
-                      className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50"
+                      disabled={formStatus.isLoading}
+                      className="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center disabled:bg-blue-300"
                     >
-                      <Send className="h-5 w-5" />
-                      <span>{isLoading ? 'Sending...' : 'Send Message'}</span>
+                      {formStatus.isLoading ? (
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      ) : (
+                        <>
+                          <Send className="h-5 w-5 mr-2" />
+                          Send Message
+                        </>
+                      )}
                     </button>
                   </form>
                 )}
@@ -265,7 +336,7 @@ const Contact = () => {
                     <span>WhatsApp Booking</span>
                   </a>
                   <a
-                    href="tel:7003371343"
+                    href="tel:9903042200"
                     className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
                   >
                     <Phone className="h-5 w-5" />
@@ -310,11 +381,11 @@ const Contact = () => {
             For urgent booking or emergency assistance during travel
           </p>
           <a
-            href="tel:7003371343"
+            href="tel:9903042200"
             className="bg-red-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200 inline-flex items-center space-x-2"
           >
             <Phone className="h-5 w-5" />
-            <span>Emergency Helpline: 7003371343</span>
+            <span>Emergency Helpline: 9903042200</span>
           </a>
         </div>
       </section>
