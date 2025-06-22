@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useDebounce } from 'use-debounce';
 import { MapPin, Calendar, Car, ArrowRight, Clock, Phone, MessageCircle, AlertCircle, CheckCircle, Info, X } from 'lucide-react';
 import Modal from './Modal';
 
@@ -26,6 +27,13 @@ const BookingForm = () => {
   };
 
   const [formData, setFormData] = useState(initialFormData);
+  const [debouncedFromCity] = useDebounce(formData.fromCity, 500);
+  const [debouncedToCity] = useDebounce(formData.toCity, 500);
+  const [fromSuggestions, setFromSuggestions] = useState<any[]>([]);
+  const [toSuggestions, setToSuggestions] = useState<any[]>([]);
+  const [fromCoords, setFromCoords] = useState<{lat: number, lng: number} | null>(null);
+  const [toCoords, setToCoords] = useState<{lat: number, lng: number} | null>(null);
+  const isSuggestionClicked = useRef(false);
   const [errors, setErrors] = useState<any>({});
   const [fareData, setFareData] = useState<{
     selected_car: FareData | null;
@@ -100,6 +108,81 @@ const BookingForm = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (isSuggestionClicked.current) {
+      isSuggestionClicked.current = false;
+      return;
+    }
+    const fetchSuggestions = async () => {
+      try {
+        const apiKey = import.meta.env.VITE_OLAMAPS_API_KEY;
+        if (!apiKey) {
+          console.error("Olamaps API key is missing.");
+          setFromSuggestions([]);
+          return;
+        }
+        const response = await fetch(`https://api.olamaps.io/places/v1/autocomplete?input=${debouncedFromCity}&api_key=${apiKey}`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        setFromSuggestions(data.predictions || []);
+      } catch (error) {
+        console.error("Failed to fetch autocomplete suggestions:", error);
+        setFromSuggestions([]);
+      }
+    };
+
+    if (debouncedFromCity.length > 2) {
+      fetchSuggestions();
+    } else {
+      setFromSuggestions([]);
+    }
+  }, [debouncedFromCity]);
+
+  useEffect(() => {
+    if (isSuggestionClicked.current) {
+      isSuggestionClicked.current = false;
+      return;
+    }
+    const fetchSuggestions = async () => {
+      try {
+        const apiKey = import.meta.env.VITE_OLAMAPS_API_KEY;
+        if (!apiKey) {
+          console.error("Olamaps API key is missing.");
+          setToSuggestions([]);
+          return;
+        }
+        const response = await fetch(`https://api.olamaps.io/places/v1/autocomplete?input=${debouncedToCity}&api_key=${apiKey}`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        setToSuggestions(data.predictions || []);
+      } catch (error) {
+        console.error("Failed to fetch autocomplete suggestions:", error);
+        setToSuggestions([]);
+      }
+    };
+    
+    if (debouncedToCity.length > 2) {
+      fetchSuggestions();
+    } else {
+      setToSuggestions([]);
+    }
+  }, [debouncedToCity]);
+
+  const getPlaceDetails = async (placeId: string, setter: React.Dispatch<React.SetStateAction<{lat: number, lng: number} | null>>) => {
+    try {
+      const apiKey = import.meta.env.VITE_OLAMAPS_API_KEY;
+      const response = await fetch(`https://api.olamaps.io/places/v1/details?place_id=${placeId}&api_key=${apiKey}`);
+      if (!response.ok) throw new Error('Failed to fetch place details');
+      const data = await response.json();
+      if (data.result?.geometry?.location) {
+        setter(data.result.geometry.location);
+      }
+    } catch (error) {
+      console.error(error);
+      setter(null);
+    }
+  };
+
   const showModal = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
     setModal({ isOpen: true, type, title, message });
   };
@@ -113,6 +196,20 @@ const BookingForm = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
     setFareData({ selected_car: null, all_car_fares: null });
     setBookingResponseData(null);
+    if (name === 'fromCity' && value === '') setFromCoords(null);
+    if (name === 'toCity' && value === '') setToCoords(null);
+  };
+
+  const handleSuggestionClick = (field: 'fromCity' | 'toCity', suggestion: any) => {
+    isSuggestionClicked.current = true;
+    setFormData(prev => ({ ...prev, [field]: suggestion.description }));
+    if (field === 'fromCity') {
+      setFromSuggestions([]);
+      if(suggestion.place_id) getPlaceDetails(suggestion.place_id, setFromCoords);
+    } else {
+      setToSuggestions([]);
+      if(suggestion.place_id) getPlaceDetails(suggestion.place_id, setToCoords);
+    }
   };
 
   const validateForm = (isBooking = false) => {
@@ -149,10 +246,42 @@ const BookingForm = () => {
     return `${String(h12).padStart(2, '0')}:${minutes} ${ampm}`;
   };
 
+  const getDistance = async () => {
+    if (!fromCoords || !toCoords) {
+      showModal('error', 'Missing Coordinates', 'Could not determine coordinates for the selected locations.');
+      return null;
+    }
+    try {
+      const apiKey = import.meta.env.VITE_OLAMAPS_API_KEY;
+      const origin = `${fromCoords.lat},${fromCoords.lng}`;
+      const destination = `${toCoords.lat},${toCoords.lng}`;
+      const response = await fetch(`https://api.olamaps.io/routing/v1/distanceMatrix/basic?origins=${origin}&destinations=${destination}&api_key=${apiKey}`);
+      if (!response.ok) throw new Error('Failed to fetch distance');
+      const data = await response.json();
+      // Distance is in meters, convert to KM
+      const distanceInKm = Math.round(data.elements[0].distance.value / 1000);
+      return distanceInKm;
+    } catch (error) {
+      console.error(error);
+      showModal('error', 'Distance Error', 'Failed to calculate the distance between the locations.');
+      return null;
+    }
+  }
+
   const calculateFare = async () => {
     if (!validateForm()) return;
     setApiStatus({ isLoading: true, isBooking: false, error: '' });
     
+    let distance = 150; // Default distance
+    if (formData.tripType !== 'rental') {
+      const calculatedDistance = await getDistance();
+      if (calculatedDistance === null) {
+        setApiStatus({ isLoading: false, isBooking: false, error: 'Could not calculate distance.' });
+        return; // Stop if distance calculation fails
+      }
+      distance = calculatedDistance;
+    }
+
     try {
       const payload: any = {
         service_type: formData.tripType,
@@ -163,7 +292,7 @@ const BookingForm = () => {
         return_date: formData.returnDate,
         pick_up_time: formatTime12Hour(formData.pickupTime),
         mobile_number: formData.phone,
-        km_limit: 150
+        km_limit: distance
       };
 
       if (formData.tripType === 'rental') {
@@ -375,6 +504,19 @@ const BookingForm = () => {
               placeholder="Kolkata"
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
+             {fromSuggestions.length > 0 && (
+              <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-auto shadow-lg">
+                {fromSuggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    onClick={() => handleSuggestionClick('fromCity', suggestion)}
+                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  >
+                    {suggestion.description}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           {errors.fromCity && <p className="text-red-500 text-xs mt-1">{errors.fromCity}</p>}
         </div>
@@ -393,6 +535,19 @@ const BookingForm = () => {
                 placeholder="Durgapur"
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
+              {toSuggestions.length > 0 && (
+                <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-auto shadow-lg">
+                  {toSuggestions.map((suggestion, index) => (
+                    <li
+                      key={index}
+                      onClick={() => handleSuggestionClick('toCity', suggestion)}
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                    >
+                      {suggestion.description}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             {errors.toCity && <p className="text-red-500 text-xs mt-1">{errors.toCity}</p>}
           </div>

@@ -81,47 +81,47 @@ router.post('/estimate', async (req, res) => {
     const allCarFares = {};
     Object.keys(carTypeRates).forEach(carType => {
       const rate = carTypeRates[carType];
-      let baseFare = 0;
+    let baseFare = 0;
       let kmLimit = 300;
 
-      switch (service_type) {
+    switch (service_type) {
         case 'oneway':
           baseFare = distance * rate.base * serviceMultipliers.oneway;
           kmLimit = distance;
-          break;
-        
-        case 'airport':
+        break;
+      
+      case 'airport':
           baseFare = distance * rate.base * serviceMultipliers.airport;
           kmLimit = distance;
-          break;
-        
-        case 'roundtrip':
+        break;
+      
+      case 'roundtrip':
           baseFare = distance * rate.base * serviceMultipliers.roundtrip;
           kmLimit = distance * 2;
-          break;
-        
+        break;
+      
         case 'rental':
           const hours = parseInt(rental_booking_type?.split('hr')[0] || '4');
           baseFare = hours * rate.base * 50 * serviceMultipliers.rental; // ₹50 per km per hour
           kmLimit = parseInt(km_limit) || 40;
           break;
-      }
+    }
 
       // Add additional charges
-      const tollCharges = (service_type === 'oneway' || service_type === 'airport') ? 200 : 0;
-      const stateTax = (service_type === 'oneway' || service_type === 'airport') ? 150 : 0;
-      const gst = Math.round(baseFare * 0.18);
+    const tollCharges = (service_type === 'oneway' || service_type === 'airport') ? 200 : 0;
+    const stateTax = (service_type === 'oneway' || service_type === 'airport') ? 150 : 0;
+    const gst = Math.round(baseFare * 0.18);
       const driverAllowance = service_type === 'roundtrip' ? 500 : 200;
-      
+    
       const totalFare = baseFare + tollCharges + stateTax + gst + driverAllowance;
 
       allCarFares[carType] = {
         estimated_fare: Math.round(totalFare),
-        km_limit: kmLimit,
-        breakdown: {
+      km_limit: kmLimit,
+      breakdown: {
           base_fare: Math.round(baseFare),
-          toll_charges: tollCharges,
-          state_tax: stateTax,
+        toll_charges: tollCharges,
+        state_tax: stateTax,
           gst: gst,
           driver_allowance: driverAllowance
         }

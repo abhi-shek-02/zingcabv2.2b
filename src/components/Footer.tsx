@@ -19,7 +19,7 @@ const Footer = () => {
             <div className="flex items-center space-x-2">
               <Link to="/" className="flex items-center space-x-2">
                 <img src="/zingcablogo.png" alt="ZingCab" className="h-8 w-8" />
-                <span className="text-2xl font-bold">ZingCab</span>
+              <span className="text-2xl font-bold">ZingCab</span>
               </Link>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
