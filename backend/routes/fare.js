@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const fareConfig = require('../config/fareConfig');
 
 // Calculate distance between two locations (mock function)
 const calculateDistance = (pickup, drop) => {
@@ -13,6 +14,26 @@ const calculateDistance = (pickup, drop) => {
   
   return distances[pickup]?.[drop] || Math.floor(Math.random() * 200) + 50;
 };
+
+function calculateZingCabFare({ car_type, km_limit, trip_type }) {
+  const car = fareConfig.carTypes[car_type];
+  if (!car) return 0;
+  let fare = 0;
+  if (trip_type === 'oneway' || trip_type === 'airport') {
+    fare = car.baseFare + (car.perKmOneway * km_limit);
+  } else if (trip_type === 'roundtrip') {
+    fare = car.baseFare + (car.perKmRoundtrip * km_limit);
+  } else if (trip_type === 'rental') {
+    // Rental: flat for up to 40km, extra km at flat rate
+    if (km_limit <= fareConfig.rentalIncludedKm) {
+      fare = car.rentalPackage;
+    } else {
+      const extraKm = km_limit - fareConfig.rentalIncludedKm;
+      fare = car.rentalPackage + (extraKm * fareConfig.rentalExtraPerKm);
+    }
+  }
+  return Math.round(fare);
+}
 
 // Calculate fare estimate
 router.post('/estimate', async (req, res) => {
@@ -33,7 +54,6 @@ router.post('/estimate', async (req, res) => {
 
     // Validate required fields
     const requiredFields = ['service_type', 'pick_up_location', 'car_type'];
-    
     if (service_type !== 'rental' && !drop_location) {
       requiredFields.push('drop_location');
     }
@@ -43,7 +63,6 @@ router.post('/estimate', async (req, res) => {
     if (service_type === 'rental' && !rental_booking_type) {
       requiredFields.push('rental_booking_type');
     }
-
     const missingFields = requiredFields.filter(field => !req.body[field]);
     if (missingFields.length > 0) {
       return res.status(400).json({
@@ -52,91 +71,21 @@ router.post('/estimate', async (req, res) => {
       });
     }
 
-    // Calculate distance
-    let distance = 0;
-    if (service_type === 'rental') {
-      distance = parseInt(String(km_limit || '40').replace(/km/i, ''));
-    } else {
-      distance = calculateDistance(pick_up_location, drop_location);
-    }
-
-    // Base fare calculation for different car types
-    const carTypeRates = {
-      'hatchback': { base: 12, premium: 1.0 },
-      'sedan': { base: 15, premium: 1.2 },
-      'suv': { base: 18, premium: 1.5 },
-      'crysta': { base: 20, premium: 1.8 },
-      'scorpio': { base: 22, premium: 2.0 }
-    };
-
-    // Service type multipliers
-    const serviceMultipliers = {
-      'oneway': 1.0,
-      'airport': 1.3,
-      'roundtrip': 1.8,
-      'rental': 1.5
-    };
-
-    // Calculate fares for all car types
+    // Use km_limit from payload for all car types
     const allCarFares = {};
-    Object.keys(carTypeRates).forEach(carType => {
-      const rate = carTypeRates[carType];
-      let baseFare = 0;
-      let kmLimit = 300;
-
-      switch (service_type) {
-        case 'oneway':
-          baseFare = distance * rate.base * serviceMultipliers.oneway;
-          kmLimit = distance;
-          break;
-        case 'airport':
-          baseFare = distance * rate.base * serviceMultipliers.airport;
-          kmLimit = distance;
-          break;
-        case 'roundtrip':
-          baseFare = distance * rate.base * serviceMultipliers.roundtrip;
-          kmLimit = distance * 2;
-          break;
-        case 'rental':
-          const hours = parseInt(rental_booking_type?.split('hr')[0] || '4');
-          baseFare = hours * rate.base * 50 * serviceMultipliers.rental; // ₹50 per km per hour
-          kmLimit = parseInt(km_limit) || 40;
-          break;
-      }
-
-      // Use km_limit from payload if provided
-      if (typeof km_limit !== 'undefined') {
-        kmLimit = Number(km_limit);
-      }
-
-      // Add additional charges
-      const tollCharges = (service_type === 'oneway' || service_type === 'airport') ? 200 : 0;
-      const stateTax = (service_type === 'oneway' || service_type === 'airport') ? 150 : 0;
-      const gst = Math.round(baseFare * 0.18);
-      const driverAllowance = service_type === 'roundtrip' ? 500 : 200;
-
-      const totalFare = baseFare + tollCharges + stateTax + gst + driverAllowance;
-
+    Object.keys(fareConfig.carTypes).forEach(carType => {
+      const calcKm = Number(km_limit) * 1.1; // Add 10% buffer for calculation only
       allCarFares[carType] = {
-        estimated_fare: Math.round(totalFare),
-        km_limit: kmLimit,
-        breakdown: {
-          base_fare: Math.round(baseFare),
-          toll_charges: tollCharges,
-          state_tax: stateTax,
-          gst: gst,
-          driver_allowance: driverAllowance
-        }
+        estimated_fare: calculateZingCabFare({ car_type: carType, km_limit: calcKm, trip_type: service_type }),
+        km_limit: Number(km_limit), // Always return the original km_limit
+        breakdown: {},
+        message: ''
       };
     });
 
     // Get the selected car type fare
     const selectedCarFare = allCarFares[car_type] || allCarFares['sedan'];
-
-    // Ensure km_limit in selected_car matches the payload
-    if (typeof km_limit !== 'undefined' && selectedCarFare) {
-      selectedCarFare.km_limit = Number(km_limit);
-    }
+    selectedCarFare.km_limit = Number(km_limit);
 
     const fareData = {
       selected_car: {
@@ -152,7 +101,7 @@ router.post('/estimate', async (req, res) => {
         pick_up_time: pick_up_time || '09:00',
         return_date: service_type === 'roundtrip' ? return_date : null,
         rental_duration: service_type === 'rental' ? rental_booking_type : null,
-        distance: distance
+        distance: Number(km_limit)
       }
     };
 
@@ -249,4 +198,5 @@ router.post('/calculator', async (req, res) => {
   }
 });
 
+// Export for use in routes
 module.exports = router;
