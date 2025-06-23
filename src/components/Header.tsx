@@ -23,7 +23,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <img src="/zingcablogo.png" alt="ZingCab" className="h-12" />
-            <span className="text-2xl font-bold text-gray-900">ZingCab</span>
+            <span className="text-2xl font-bold" style={{color: '#0A1D3B'}}>ZingCab</span>
           </Link>
 
           {/* Desktop Navigation */}

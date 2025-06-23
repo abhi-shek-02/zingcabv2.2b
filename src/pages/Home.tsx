@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import CountUp from 'react-countup';
+import { useInView } from 'react-intersection-observer';
 import { 
   Shield, 
   Clock, 
@@ -14,6 +16,29 @@ import {
   Plane
 } from 'lucide-react';
 import BookingForm from '../components/BookingForm';
+
+const Stat = ({ number, label, icon: Icon }: { number: string; label: string; icon: React.ElementType }) => {
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
+
+  const parsedNumber = parseFloat(number.replace(/,/g, ''));
+
+  return (
+    <div ref={ref} className="bg-blue-700 p-6 rounded-2xl text-center shadow-lg transform hover:scale-105 transition-transform duration-300">
+      <div className="text-blue-200 mb-2">
+        <Icon className="h-10 w-10 mx-auto" />
+      </div>
+      <div className="text-4xl lg:text-5xl font-bold mb-2">
+        {inView ? <CountUp end={parsedNumber} duration={2.5} separator="," decimals={number.includes('.') ? 1 : 0} /> : '0'}
+        {number.includes('+') && '+'}
+        {number.includes('/5') && '/5'}
+      </div>
+      <div className="text-blue-200 text-lg">{label}</div>
+    </div>
+  );
+};
 
 const Home = () => {
   const features = [
@@ -64,10 +89,10 @@ const Home = () => {
   ];
 
   const stats = [
-    { number: '50,000+', label: 'Happy Customers' },
-    { number: '500+', label: 'Cities Covered' },
-    { number: '1000+', label: 'Verified Drivers' },
-    { number: '4.8/5', label: 'Customer Rating' }
+    { number: '50,000+', label: 'Happy Customers', icon: Users },
+    { number: '500+', label: 'Cities Covered', icon: MapPin },
+    { number: '1000+', label: 'Verified Drivers', icon: Shield },
+    { number: '4.8/5', label: 'Customer Rating', icon: Star }
   ];
 
   return (
@@ -79,7 +104,7 @@ const Home = () => {
           <div className="text-center mb-12">
             <h1 className="text-4xl lg:text-6xl font-bold mb-6 leading-tight">
               ZingCab
-              <span className="block text-blue-200">Safe. Reliable. On Time.</span>
+              <span className="block text-blue-200 mt-5">Safe. Reliable. On Time.</span>
             </h1>
             <p className="text-xl lg:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed hidden lg:block">
               Driven by Trust, Comfort in Every Mile, Through the Heart of Bengal
@@ -148,12 +173,9 @@ const Home = () => {
       {/* Stats Section */}
       <section className="py-16 bg-blue-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-4xl lg:text-5xl font-bold mb-2">{stat.number}</div>
-                <div className="text-blue-200 text-lg">{stat.label}</div>
-              </div>
+              <Stat key={index} number={stat.number} label={stat.label} icon={stat.icon} />
             ))}
           </div>
         </div>

@@ -2,16 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDebounce } from 'use-debounce';
 import { MapPin, Calendar, Car, ArrowRight, Clock, Phone, MessageCircle, AlertCircle, CheckCircle, Info, X } from 'lucide-react';
 import Modal from './Modal';
+import { getDistanceInKm } from '../lib/olamaps';
 
 interface FareData {
   estimated_fare: number;
   km_limit: string;
   breakdown: any;
+  message: string;
 }
 
 interface AllCarFares {
   [key: string]: FareData;
 }
+
+const OLA_API_KEY = import.meta.env.VITE_OLAMAPS_API_KEY;
 
 const BookingForm = () => {
   const initialFormData = {
@@ -54,6 +58,26 @@ const BookingForm = () => {
     title: '',
     message: ''
   });
+
+  const [tripType, setTripType] = useState('one-way');
+  const [pickupLocation, setPickupLocation] = useState('');
+  const [debouncedPickupLocation] = useDebounce(pickupLocation, 300);
+  const [dropoffLocation, setDropoffLocation] = useState('');
+  const [debouncedDropoffLocation] = useDebounce(dropoffLocation, 300);
+  const [pickupCoords, setPickupCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [dropoffCoords, setDropoffCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [distance, setDistance] = useState<string | null>(null);
+  const [pickupDate, setPickupDate] = useState('');
+  const [pickupTime, setPickupTime] = useState('');
+  const [pickupSuggestions, setPickupSuggestions] = useState<any[]>([]);
+  const [dropoffSuggestions, setDropoffSuggestions] = useState<any[]>([]);
+  const [isPickupLoading, setIsPickupLoading] = useState(false);
+  const [isDropoffLoading, setIsDropoffLoading] = useState(false);
+  const isTypingPickup = useRef(false);
+  const isTypingDropoff = useRef(false);
+  const [pickupPlaceId, setPickupPlaceId] = useState('');
+  const [dropPlaceId, setDropPlaceId] = useState('');
+  const [carTypeChangedByCard, setCarTypeChangedByCard] = useState(false);
 
   const resetForm = () => {
     setFormData(initialFormData);
@@ -202,13 +226,16 @@ const BookingForm = () => {
 
   const handleSuggestionClick = (field: 'fromCity' | 'toCity', suggestion: any) => {
     isSuggestionClicked.current = true;
-    setFormData(prev => ({ ...prev, [field]: suggestion.description }));
     if (field === 'fromCity') {
+      setFormData(prev => ({ ...prev, fromCity: suggestion.description }));
+      setPickupPlaceId(suggestion.place_id);
       setFromSuggestions([]);
-      if(suggestion.place_id) getPlaceDetails(suggestion.place_id, setFromCoords);
+      getPlaceDetails(suggestion.place_id, setPickupCoords);
     } else {
+      setFormData(prev => ({ ...prev, toCity: suggestion.description }));
+      setDropPlaceId(suggestion.place_id);
       setToSuggestions([]);
-      if(suggestion.place_id) getPlaceDetails(suggestion.place_id, setToCoords);
+      getPlaceDetails(suggestion.place_id, setDropoffCoords);
     }
   };
 
@@ -283,26 +310,38 @@ const BookingForm = () => {
     }
 
     try {
+      const formattedTime = `${formData.date}T${formData.pickupTime}:00`;
+      let kmLimit = null;
+      if (formData.tripType === 'rental') {
+        // Extract km from rental_booking_type (e.g., '4hr/40km' => 40)
+        const match = formData.rentalDuration.match(/(\d+)km/);
+        kmLimit = match ? Number(match[1]) : 40;
+      } else {
+        kmLimit = Number(distance);
+      }
       const payload: any = {
         service_type: formData.tripType,
         pick_up_location: formData.fromCity,
         drop_location: formData.toCity,
+        pick_up_time: formattedTime,
+        km_limit: kmLimit,
         car_type: formData.carType,
         journey_date: formData.date,
-        return_date: formData.returnDate,
-        pick_up_time: formatTime12Hour(formData.pickupTime),
         mobile_number: formData.phone,
-        km_limit: distance
+        booking_source: 'website',
       };
-
+      if (formData.tripType === 'roundtrip') {
+        payload.return_date = formData.returnDate;
+      }
       if (formData.tripType === 'rental') {
         payload.rental_booking_type = formData.rentalDuration;
       }
-
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/fare/estimate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -393,6 +432,206 @@ const BookingForm = () => {
     const dd = String(today.getDate()).padStart(2, '0');
     return `${yyyy}-${mm}-${dd}`;
   };
+
+  const fetchSuggestions = async (
+    input: string, 
+    setSuggestions: React.Dispatch<React.SetStateAction<any[]>>, 
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+  ) => {
+    if (input.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const response = await fetch(`https://api.olakrutrim.com/v1/places/autocomplete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_OLAMAPS_API_KEY}`
+        },
+        body: JSON.stringify({ input })
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      setSuggestions(data.predictions || []);
+    } catch (error) {
+      console.error("Failed to fetch suggestions:", error);
+      setSuggestions([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isTypingPickup.current) {
+      fetchSuggestions(debouncedPickupLocation, setPickupSuggestions, setIsPickupLoading);
+    }
+  }, [debouncedPickupLocation]);
+
+  useEffect(() => {
+    if (isTypingDropoff.current) {
+      fetchSuggestions(debouncedDropoffLocation, setDropoffSuggestions, setIsDropoffLoading);
+    }
+  }, [debouncedDropoffLocation]);
+
+  const fetchCoordinates = async (placeId: string, setCoords: (coords: { lat: number; lng: number } | null) => void) => {
+    try {
+      const response = await fetch(`https://api.olakrutrim.com/v1/places/${placeId}`, {
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_OLAMAPS_API_KEY}`
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch place details');
+      }
+      const data = await response.json();
+      if (data.result && data.result.geometry && data.result.geometry.location) {
+        setCoords(data.result.geometry.location);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchDistance = async (origin: { lat: number; lng: number }, destination: { lat: number; lng: number }) => {
+    try {
+      const response = await fetch(`https://api.olakrutrim.com/v1/distance-matrix`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_OLAMAPS_API_KEY}`
+        },
+        body: JSON.stringify({
+          origins: [origin],
+          destinations: [destination],
+          mode: 'driving'
+        })
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch distance');
+      }
+      const data = await response.json();
+      if (data.matrix && data.matrix[0] && data.matrix[0].distance) {
+        const distanceInKm = (data.matrix[0].distance / 1000).toFixed(2);
+        setDistance(distanceInKm);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (pickupCoords && dropoffCoords) {
+      getDistanceInKm(pickupCoords, dropoffCoords, OLA_API_KEY).then(setDistance);
+    }
+  }, [pickupCoords, dropoffCoords]);
+
+  const handleSelectPickup = (place: any) => {
+    isTypingPickup.current = false;
+    setPickupLocation(place.description);
+    setPickupPlaceId(place.place_id);
+    setPickupSuggestions([]);
+    fetchCoordinates(place.place_id, setPickupCoords);
+  };
+
+  const handleSelectDropoff = (place: any) => {
+    isTypingDropoff.current = false;
+    setDropoffLocation(place.description);
+    setDropPlaceId(place.place_id);
+    setDropoffSuggestions([]);
+    fetchCoordinates(place.place_id, setDropoffCoords);
+  };
+
+  const getFareEstimate = async () => {
+    console.log('Estimate button clicked');
+    // Only require relevant fields for rental
+    if (formData.tripType === 'rental') {
+      if (!formData.fromCity || !formData.date) {
+        showModal('warning', 'Incomplete Form', 'Please fill all required fields (Pickup, Date) before calculating fare.');
+        return;
+      }
+    } else {
+      if (!formData.fromCity || !formData.toCity || !formData.date || !formData.pickupTime) {
+        showModal('warning', 'Incomplete Form', 'Please fill all required fields (Pickup, Dropoff, Date, Time) before calculating fare.');
+        return;
+      }
+    }
+
+    if (formData.tripType !== 'rental' && !distance) {
+      showModal('warning', 'Distance Error', 'Could not calculate distance. Please select valid locations.');
+      return;
+    }
+
+    setApiStatus({ isLoading: true, isBooking: false, error: '' });
+    
+    try {
+      const formattedTime = `${formData.date}T${formData.pickupTime}:00`;
+      let kmLimit = null;
+      if (formData.tripType === 'rental') {
+        // Extract km from rental_booking_type (e.g., '4hr/40km' => 40)
+        const match = formData.rentalDuration.match(/(\d+)km/);
+        kmLimit = match ? Number(match[1]) : 40;
+      } else {
+        kmLimit = Number(distance);
+      }
+      const payload: any = {
+        service_type: formData.tripType,
+        pick_up_location: formData.fromCity,
+        drop_location: formData.toCity,
+        pick_up_time: formattedTime,
+        km_limit: kmLimit,
+        car_type: formData.carType,
+        journey_date: formData.date,
+        mobile_number: formData.phone,
+        booking_source: 'website',
+      };
+      if (formData.tripType === 'roundtrip') {
+        payload.return_date = formData.returnDate;
+      }
+      if (formData.tripType === 'rental') {
+        payload.rental_booking_type = formData.rentalDuration;
+      }
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/fare/estimate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to calculate fare.');
+      }
+
+      setFareData(data.data);
+    } catch (error: any) {
+      setApiStatus(prev => ({ ...prev, error: error.message }));
+    } finally {
+      setApiStatus(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const handleCarCardSelect = (carId: string) => {
+    setFormData(prev => {
+      if (prev.carType !== carId) {
+        setCarTypeChangedByCard(true);
+        return { ...prev, carType: carId };
+      }
+      return prev;
+    });
+  };
+
+  useEffect(() => {
+    if (carTypeChangedByCard) {
+      getFareEstimate();
+      setCarTypeChangedByCard(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.carType]);
 
   return (
     <div className="bg-white rounded-2xl shadow-xl p-6 lg:p-8 max-w-4xl mx-auto" id="booking-form">
@@ -553,6 +792,19 @@ const BookingForm = () => {
           </div>
         )}
 
+        {/* Distance Disabled Input (now in grid, no col-span/flex) */}
+        {distance && formData.tripType !== 'rental' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Distance (km)</label>
+            <input
+              type="text"
+              value={`${distance} km`}
+              disabled
+              className="w-full px-4 py-3 border border-blue-300 rounded-lg bg-blue-50 text-blue-900 font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+        )}
+
         {/* Date */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -644,25 +896,64 @@ const BookingForm = () => {
       </div>
       
       {/* Popular Routes */}
-      <div className="mb-6">
-        <h4 className="text-sm font-semibold text-gray-600 mb-2">Popular Routes:</h4>
-        <div className="flex flex-wrap gap-2">
-          {popularRoutes.map(route => (
-            <button
-              key={`${route.from}-${route.to}`}
-              onClick={() => handleRouteSelect(route)}
-              className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full hover:bg-gray-200"
-            >
-              {route.from} <ArrowRight className="inline h-3 w-3" /> {route.to}
-            </button>
-          ))}
+      {formData.tripType !== 'rental' && (
+        <div className="mb-6">
+          <h4 className="text-sm font-semibold text-gray-600 mb-2">Popular Routes:</h4>
+          <div className="flex flex-wrap gap-2">
+            {popularRoutes.map(route => (
+              <button
+                key={`${route.from}-${route.to}`}
+                onClick={() => handleRouteSelect(route)}
+                className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full hover:bg-gray-200 flex items-center"
+              >
+                <MapPin className="inline h-3 w-3 mr-1" />
+                {route.from} <ArrowRight className="inline h-3 w-3 mx-1" /> {route.to}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Fare Estimate and Other Cars - moved above action buttons */}
+      {fareData.selected_car && (
+        <div className="mb-6 p-6 bg-blue-50 border border-blue-200 rounded-2xl">
+          <h3 className="text-xl font-bold text-center text-gray-900 mb-4">Fare Estimate</h3>
+          <div className="text-center mb-6">
+            <p className="text-4xl font-extrabold text-blue-600">
+              ₹{fareData.selected_car.estimated_fare.toLocaleString('en-IN')}
+            </p>
+            <p className="text-sm text-gray-600 mt-1">for {formData.carType} (up to {fareData.selected_car.km_limit})</p>
+          </div>
+        </div>
+      )}
+      {fareData.all_car_fares && (
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-center text-gray-800 mb-4">Other Available Cars</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {Object.entries(fareData.all_car_fares).map(([car, fare]) => {
+              const carInfo = carTypes.find(c => c.id === car);
+              if (!carInfo) return null;
+              return (
+                <div
+                  key={car}
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${formData.carType === car ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}
+                  onClick={() => handleCarCardSelect(car)}
+                >
+                  <h4 className="font-bold text-gray-900 text-sm">{carInfo.name}</h4>
+                  <p className="text-xs text-gray-600">{carInfo.seats}, {carInfo.example}</p>
+                  <p className="text-lg font-bold text-gray-800 mt-2">₹{fare.estimated_fare.toLocaleString('en-IN')}</p>
+                  <p className="text-xs text-gray-500">Up to {fare.km_limit}</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <button
-          onClick={calculateFare}
+          onClick={getFareEstimate}
           disabled={apiStatus.isLoading}
           className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -684,39 +975,6 @@ const BookingForm = () => {
           {apiStatus.error}
         </div>
       )}
-
-      {fareData.selected_car && (
-        <div className="mb-6 p-6 bg-blue-50 border border-blue-200 rounded-2xl">
-          <h3 className="text-xl font-bold text-center text-gray-900 mb-4">Fare Estimate</h3>
-          <div className="text-center mb-6">
-            <p className="text-4xl font-extrabold text-blue-600">
-              ₹{fareData.selected_car.estimated_fare.toLocaleString('en-IN')}
-            </p>
-            <p className="text-sm text-gray-600 mt-1">for {formData.carType} (up to {fareData.selected_car.km_limit})</p>
-          </div>
-        </div>
-      )}
-      
-       {fareData.all_car_fares && (
-         <div className="mb-4">
-            <h3 className="text-lg font-semibold text-center text-gray-800 mb-4">Other Available Cars</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-               {Object.entries(fareData.all_car_fares).map(([car, fare]) => {
-                 const carInfo = carTypes.find(c => c.id === car);
-                 if (!carInfo) return null;
-                 
-                 return (
-                  <div key={car} className={`p-4 rounded-lg border-2 ${formData.carType === car ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
-                    <h4 className="font-bold text-gray-900 text-sm">{carInfo.name}</h4>
-                    <p className="text-xs text-gray-600">{carInfo.seats}, {carInfo.example}</p>
-                    <p className="text-lg font-bold text-gray-800 mt-2">₹{fare.estimated_fare.toLocaleString('en-IN')}</p>
-                    <p className="text-xs text-gray-500">Up to {fare.km_limit}</p>
-                  </div>
-                 )
-                })}
-            </div>
-         </div>
-       )}
 
     </div>
   );
