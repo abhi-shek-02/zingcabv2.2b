@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "enc-cmd -f ./.env.development vite",
+    "dev": "env-cmd -f ./.env.development vite",
     "build:dev": "env-cmd -f ./.env.development vite build",
     "build:prod": "env-cmd -f ./.env.production vite build",
     "lint": "eslint .",

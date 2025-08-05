@@ -319,6 +319,8 @@ const BookingForm = () => {
       } else {
         kmLimit = Number(distance);
       }
+      
+      // Prepare payload with coordinates for geolocation-based pricing
       const payload: any = {
         service_type: formData.tripType,
         pick_up_location: formData.fromCity,
@@ -330,12 +332,27 @@ const BookingForm = () => {
         mobile_number: formData.phone,
         booking_source: 'website',
       };
+
+      // Add coordinates if available for geolocation-based pricing
+      if (pickupCoords) {
+        payload.pickup_lat = pickupCoords.lat;
+        payload.pickup_lng = pickupCoords.lng;
+      }
+      
+      if (dropoffCoords) {
+        payload.drop_lat = dropoffCoords.lat;
+        payload.drop_lng = dropoffCoords.lng;
+      }
+
       if (formData.tripType === 'roundtrip') {
         payload.return_date = formData.returnDate;
       }
       if (formData.tripType === 'rental') {
         payload.rental_booking_type = formData.rentalDuration;
       }
+      
+      console.log('Fare calculation payload with coordinates:', payload);
+      
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/fare/estimate`, {
         method: 'POST',
         headers: {
@@ -385,9 +402,22 @@ const BookingForm = () => {
         booking_source: 'website'
       };
 
+      // Add coordinates for geolocation-based pricing
+      if (pickupCoords) {
+        bookingPayload.pickup_lat = pickupCoords.lat;
+        bookingPayload.pickup_lng = pickupCoords.lng;
+      }
+      
+      if (dropoffCoords) {
+        bookingPayload.drop_lat = dropoffCoords.lat;
+        bookingPayload.drop_lng = dropoffCoords.lng;
+      }
+
       if (formData.tripType === 'rental') {
         bookingPayload.rental_booking_type = formData.rentalDuration;
       }
+
+      console.log('Booking payload with coordinates:', bookingPayload);
 
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/booking`, {
         method: 'POST',
@@ -577,6 +607,8 @@ const BookingForm = () => {
       } else {
         kmLimit = Number(distance);
       }
+      
+      // Prepare payload with coordinates for geolocation-based pricing
       const payload: any = {
         service_type: formData.tripType,
         pick_up_location: formData.fromCity,
@@ -588,12 +620,27 @@ const BookingForm = () => {
         mobile_number: formData.phone,
         booking_source: 'website',
       };
+
+      // Add coordinates if available for geolocation-based pricing
+      if (pickupCoords) {
+        payload.pickup_lat = pickupCoords.lat;
+        payload.pickup_lng = pickupCoords.lng;
+      }
+      
+      if (dropoffCoords) {
+        payload.drop_lat = dropoffCoords.lat;
+        payload.drop_lng = dropoffCoords.lng;
+      }
+
       if (formData.tripType === 'roundtrip') {
         payload.return_date = formData.returnDate;
       }
       if (formData.tripType === 'rental') {
         payload.rental_booking_type = formData.rentalDuration;
       }
+      
+      console.log('Fare estimation payload with coordinates:', payload);
+      
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/fare/estimate`, {
         method: 'POST',
         headers: {
