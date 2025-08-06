@@ -1,0 +1,25 @@
+{
+  "gst_percent": 18,
+  "driver_allowance": {
+    "roundtrip": 500,
+    "default": 200
+  },
+  "toll_handling": {
+    "oneway": "excluded",
+    "roundtrip": "customer_pays",
+    "rental": "customer_pays",
+    "airport": "excluded"
+  },
+  "night_charge": {
+    "oneway": false,
+    "roundtrip": true,
+    "rental": true,
+    "airport": false
+  },
+  "festive_charge": {
+    "oneway": false,
+    "roundtrip": true,
+    "rental": true,
+    "airport": false
+  }
+} 

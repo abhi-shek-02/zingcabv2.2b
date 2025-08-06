@@ -1,0 +1,597 @@
+[
+  {
+    "district": "Kolkata",
+    "locations": [
+      {
+        "name": "Kolkata",
+        "center": {
+          "lat": 22.5726,
+          "lng": 88.3639
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Paschim Bardhaman",
+    "locations": [
+      {
+        "name": "Durgapur",
+        "center": {
+          "lat": 23.5204,
+          "lng": 87.3119
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Asansol",
+        "center": {
+          "lat": 23.6889,
+          "lng": 86.9661
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Panagarh",
+        "center": {
+          "lat": 23.4507,
+          "lng": 87.4341
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Howrah",
+    "locations": [
+      {
+        "name": "Howrah",
+        "center": {
+          "lat": 22.5958,
+          "lng": 88.2636
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "North 24 Parganas",
+    "locations": [
+      {
+        "name": "Salt Lake City",
+        "center": {
+          "lat": 22.5802,
+          "lng": 88.4376
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "New Town",
+        "center": {
+          "lat": 22.5958,
+          "lng": 88.4795
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Dum Dum (Airport)",
+        "center": {
+          "lat": 22.6547,
+          "lng": 88.4467
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Barasat",
+        "center": {
+          "lat": 22.7261,
+          "lng": 88.4811
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Barrackpore",
+        "center": {
+          "lat": 22.7674,
+          "lng": 88.3634
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Basirhat",
+        "center": {
+          "lat": 22.658,
+          "lng": 88.8667
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Hooghly",
+    "locations": [
+      {
+        "name": "Serampore",
+        "center": {
+          "lat": 22.7523,
+          "lng": 88.3428
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Uttarpara",
+        "center": {
+          "lat": 22.6742,
+          "lng": 88.3487
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Dankuni",
+        "center": {
+          "lat": 22.6837,
+          "lng": 88.2926
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Singur",
+        "center": {
+          "lat": 22.8077,
+          "lng": 88.2306
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Tribeni",
+        "center": {
+          "lat": 22.9883,
+          "lng": 88.4011
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Hugli-Chinsurah",
+        "center": {
+          "lat": 22.9076,
+          "lng": 88.3967
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Chandannagar",
+        "center": {
+          "lat": 22.8671,
+          "lng": 88.3674
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "South 24 Parganas",
+    "locations": [
+      {
+        "name": "Budge Budge",
+        "center": {
+          "lat": 22.4745,
+          "lng": 88.1836
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Diamond Harbour",
+        "center": {
+          "lat": 22.1921,
+          "lng": 88.1907
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Ghatakpukur",
+        "center": {
+          "lat": 22.4155,
+          "lng": 88.6
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Bakkhali",
+        "center": {
+          "lat": 21.5634,
+          "lng": 88.2648
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Kakdwip",
+        "center": {
+          "lat": 21.8753,
+          "lng": 88.1837
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Malda",
+    "locations": [
+      {
+        "name": "Malda",
+        "center": {
+          "lat": 25.0108,
+          "lng": 88.1411
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Nadia",
+    "locations": [
+      {
+        "name": "Krishnanagar",
+        "center": {
+          "lat": 23.4064,
+          "lng": 88.5012
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Nadia",
+        "center": {
+          "lat": 23.471,
+          "lng": 88.5565
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Santipur",
+        "center": {
+          "lat": 23.248,
+          "lng": 88.4409
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Nakashipara",
+        "center": {
+          "lat": 23.662,
+          "lng": 88.3747
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Mayapur",
+        "center": {
+          "lat": 23.4219,
+          "lng": 88.3884
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Kalyani",
+        "center": {
+          "lat": 22.9756,
+          "lng": 88.4345
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Ranaghat",
+        "center": {
+          "lat": 23.1765,
+          "lng": 88.5636
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Birbhum",
+    "locations": [
+      {
+        "name": "Bolpur",
+        "center": {
+          "lat": 23.6662,
+          "lng": 87.7145
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Tarapith",
+        "center": {
+          "lat": 24.1047,
+          "lng": 87.8519
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Shantiniketan",
+        "center": {
+          "lat": 23.8711,
+          "lng": 87.72
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Paschim Medinipur",
+    "locations": [
+      {
+        "name": "Ghatal",
+        "center": {
+          "lat": 22.662,
+          "lng": 87.722
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Kharagpur",
+        "center": {
+          "lat": 22.346,
+          "lng": 87.232
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Medinipur",
+        "center": {
+          "lat": 22.43,
+          "lng": 87.3196
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Kharagpur IIT",
+        "center": {
+          "lat": 22.3149,
+          "lng": 87.3105
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Purulia",
+    "locations": [
+      {
+        "name": "Purulia",
+        "center": {
+          "lat": 23.3306,
+          "lng": 86.3658
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Bankura",
+    "locations": [
+      {
+        "name": "Jayrambati",
+        "center": {
+          "lat": 22.9144,
+          "lng": 87.6775
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Bankura",
+        "center": {
+          "lat": 23.2324,
+          "lng": 87.0737
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Purba Medinipur",
+    "locations": [
+      {
+        "name": "Mandarmani",
+        "center": {
+          "lat": 21.6291,
+          "lng": 87.5325
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Digha",
+        "center": {
+          "lat": 21.6291,
+          "lng": 87.7000
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Contai",
+        "center": {
+          "lat": 21.7788,
+          "lng": 87.7489
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Haldia",
+        "center": {
+          "lat": 22.0257,
+          "lng": 88.0583
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Kolaghat",
+        "center": {
+          "lat": 22.433,
+          "lng": 87.8696
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Murshidabad",
+    "locations": [
+      {
+        "name": "Baharampur",
+        "center": {
+          "lat": 24.104,
+          "lng": 88.2516
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Murshidabad",
+        "center": {
+          "lat": 24.1752,
+          "lng": 88.2714
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Raghunathganj",
+        "center": {
+          "lat": 24.4901,
+          "lng": 87.9238
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Dakshin Dinajpur",
+    "locations": [
+      {
+        "name": "Balurghat",
+        "center": {
+          "lat": 25.2215,
+          "lng": 88.7778
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Darjeeling",
+    "locations": [
+      {
+        "name": "Siliguri",
+        "center": {
+          "lat": 26.7271,
+          "lng": 88.3953
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Alipurduar",
+    "locations": [
+      {
+        "name": "Alipurduar",
+        "center": {
+          "lat": 26.4837,
+          "lng": 89.5668
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Cooch Behar",
+    "locations": [
+      {
+        "name": "Cooch Behar",
+        "center": {
+          "lat": 26.3246,
+          "lng": 89.4494
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Purba Bardhaman",
+    "locations": [
+      {
+        "name": "Bardhaman",
+        "center": {
+          "lat": 23.2324,
+          "lng": 87.8615
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Kalna",
+        "center": {
+          "lat": 23.2191,
+          "lng": 88.3674
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Jalpaiguri",
+    "locations": [
+      {
+        "name": "Jalpaiguri",
+        "center": {
+          "lat": 26.5175,
+          "lng": 88.7201
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Uttar Dinajpur",
+    "locations": [
+      {
+        "name": "Raiganj",
+        "center": {
+          "lat": 25.6167,
+          "lng": 88.1256
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Kalimpong",
+    "locations": [
+      {
+        "name": "Kalimpong",
+        "center": {
+          "lat": 27.0647,
+          "lng": 88.4753
+        },
+        "radius_km": 20
+      }
+    ]
+  },
+  {
+    "district": "Jhargram",
+    "locations": [
+      {
+        "name": "Jhargram",
+        "center": {
+          "lat": 22.4504,
+          "lng": 86.9948
+        },
+        "radius_km": 20
+      },
+      {
+        "name": "Gopiballavpur",
+        "center": {
+          "lat": 22.1481,
+          "lng": 86.7362
+        },
+        "radius_km": 20
+      }
+    ]
+  }
+] 

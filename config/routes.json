@@ -1,0 +1,615 @@
+[
+  {
+    "id": "kolkata-digha",
+    "start": "Kolkata",
+    "end": "Digha",
+    "service_type": "oneway",
+    "route_type": "tourist",
+    "fares": {
+      "sedan": 3699,
+      "suv": 4499
+    },
+    "conditions": {
+      "seasonal": {
+        "summer": {
+          "sedan": 3999,
+          "suv": 4799
+        },
+        "monsoon": {
+          "sedan": 3499,
+          "suv": 4299
+        }
+      },
+      "events": {
+        "beach_season": {
+          "sedan": 4199,
+          "suv": 4999
+        }
+      },
+      "time_slots": {
+        "peak_hours": {
+          "sedan": 3899,
+          "suv": 4699
+        }
+      }
+    },
+    "active": true,
+    "priority": 1
+  },
+  {
+    "id": "digha-kolkata",
+    "start": "Digha",
+    "end": "Kolkata",
+    "service_type": "oneway",
+    "route_type": "tourist",
+    "fares": {
+      "sedan": 3699,
+      "suv": 4499
+    },
+    "conditions": {
+      "seasonal": {
+        "summer": {
+          "sedan": 3999,
+          "suv": 4799
+        },
+        "monsoon": {
+          "sedan": 3499,
+          "suv": 4299
+        }
+      },
+      "events": {
+        "beach_season": {
+          "sedan": 4199,
+          "suv": 4999
+        }
+      },
+      "time_slots": {
+        "peak_hours": {
+          "sedan": 3899,
+          "suv": 4699
+        }
+      }
+    },
+    "active": true,
+    "priority": 1
+  },
+  {
+    "id": "kolkata-mandarmani",
+    "start": "Kolkata",
+    "end": "Mandarmani",
+    "service_type": "oneway",
+    "route_type": "tourist",
+    "fares": {
+      "sedan": 3699,
+      "suv": 4499
+    },
+    "conditions": {
+      "seasonal": {
+        "summer": {
+          "sedan": 3999,
+          "suv": 4799
+        }
+      }
+    },
+    "active": true,
+    "priority": 1
+  },
+  {
+    "id": "mandarmani-kolkata",
+    "start": "Mandarmani",
+    "end": "Kolkata",
+    "service_type": "oneway",
+    "route_type": "tourist",
+    "fares": {
+      "sedan": 3699,
+      "suv": 4499
+    },
+    "conditions": {
+      "seasonal": {
+        "summer": {
+          "sedan": 3999,
+          "suv": 4799
+        }
+      }
+    },
+    "active": true,
+    "priority": 1
+  },
+  {
+    "id": "kolkata-contai",
+    "start": "Kolkata",
+    "end": "Contai",
+    "service_type": "oneway",
+    "route_type": "business",
+    "fares": {
+      "sedan": 2399,
+      "suv": 3499
+    },
+    "active": true,
+    "priority": 2
+  },
+  {
+    "id": "contai-kolkata",
+    "start": "Contai",
+    "end": "Kolkata",
+    "service_type": "oneway",
+    "route_type": "business",
+    "fares": {
+      "sedan": 2399,
+      "suv": 3499
+    },
+    "active": true,
+    "priority": 2
+  },
+  {
+    "id": "kolkata-kharagpur",
+    "start": "Kolkata",
+    "end": "Kharagpur",
+    "service_type": "oneway",
+    "route_type": "business",
+    "fares": {
+      "sedan": 2399,
+      "suv": 3499
+    },
+    "active": true,
+    "priority": 2
+  },
+  {
+    "id": "kharagpur-kolkata",
+    "start": "Kharagpur",
+    "end": "Kolkata",
+    "service_type": "oneway",
+    "route_type": "business",
+    "fares": {
+      "sedan": 2399,
+      "suv": 3499
+    },
+    "active": true,
+    "priority": 2
+  },
+  {
+    "id": "kolkata-asansol",
+    "start": "Kolkata",
+    "end": "Asansol",
+    "service_type": "oneway",
+    "route_type": "business",
+    "fares": {
+      "sedan": 3699,
+      "suv": 4899
+    },
+    "active": true,
+    "priority": 2
+  },
+  {
+    "id": "asansol-kolkata",
+    "start": "Asansol",
+    "end": "Kolkata",
+    "service_type": "oneway",
+    "route_type": "business",
+    "fares": {
+      "sedan": 3699,
+      "suv": 4899
+    },
+    "active": true,
+    "priority": 2
+  },
+  {
+    "id": "kolkata-durgapur",
+    "start": "Kolkata",
+    "end": "Durgapur",
+    "service_type": "oneway",
+    "route_type": "business",
+    "fares": {
+      "sedan": 3399,
+      "suv": 4499
+    },
+    "active": true,
+    "priority": 2
+  },
+  {
+    "id": "durgapur-kolkata",
+    "start": "Durgapur",
+    "end": "Kolkata",
+    "service_type": "oneway",
+    "route_type": "business",
+    "fares": {
+      "sedan": 3399,
+      "suv": 4499
+    },
+    "active": true,
+    "priority": 2
+  },
+  {
+    "id": "kolkata-tarapith",
+    "start": "Kolkata",
+    "end": "Tarapith",
+    "service_type": "oneway",
+    "route_type": "religious",
+    "fares": {
+      "sedan": 4699,
+      "suv": 5699
+    },
+    "conditions": {
+      "events": {
+        "religious_festival": {
+          "sedan": 5199,
+          "suv": 6199
+        }
+      }
+    },
+    "active": true,
+    "priority": 1
+  },
+  {
+    "id": "tarapith-kolkata",
+    "start": "Tarapith",
+    "end": "Kolkata",
+    "service_type": "oneway",
+    "route_type": "religious",
+    "fares": {
+      "sedan": 4699,
+      "suv": 5699
+    },
+    "conditions": {
+      "events": {
+        "religious_festival": {
+          "sedan": 5199,
+          "suv": 6199
+        }
+      }
+    },
+    "active": true,
+    "priority": 1
+  },
+  {
+    "id": "kolkata-mayapur",
+    "start": "Kolkata",
+    "end": "Mayapur",
+    "service_type": "oneway",
+    "route_type": "religious",
+    "fares": {
+      "sedan": 3499,
+      "suv": 4499
+    },
+    "conditions": {
+      "events": {
+        "iskcon_festival": {
+          "sedan": 3999,
+          "suv": 4999
+        }
+      }
+    },
+    "active": true,
+    "priority": 1
+  },
+  {
+    "id": "mayapur-kolkata",
+    "start": "Mayapur",
+    "end": "Kolkata",
+    "service_type": "oneway",
+    "route_type": "religious",
+    "fares": {
+      "sedan": 3499,
+      "suv": 4499
+    },
+    "conditions": {
+      "events": {
+        "iskcon_festival": {
+          "sedan": 3999,
+          "suv": 4999
+        }
+      }
+    },
+    "active": true,
+    "priority": 1
+  },
+  {
+    "id": "kolkata-haldia",
+    "start": "Kolkata",
+    "end": "Haldia",
+    "service_type": "oneway",
+    "route_type": "business",
+    "fares": {
+      "sedan": 2999,
+      "suv": 3699
+    },
+    "active": true,
+    "priority": 2
+  },
+  {
+    "id": "haldia-kolkata",
+    "start": "Haldia",
+    "end": "Kolkata",
+    "service_type": "oneway",
+    "route_type": "business",
+    "fares": {
+      "sedan": 2999,
+      "suv": 3699
+    },
+    "active": true,
+    "priority": 2
+  },
+  {
+    "id": "kolkata-shantiniketan",
+    "start": "Kolkata",
+    "end": "Shantiniketan",
+    "service_type": "oneway",
+    "route_type": "educational",
+    "fares": {
+      "sedan": 3699,
+      "suv": 4999
+    },
+    "conditions": {
+      "seasonal": {
+        "winter": {
+          "sedan": 3999,
+          "suv": 5299
+        }
+      }
+    },
+    "active": true,
+    "priority": 1
+  },
+  {
+    "id": "shantiniketan-kolkata",
+    "start": "Shantiniketan",
+    "end": "Kolkata",
+    "service_type": "oneway",
+    "route_type": "educational",
+    "fares": {
+      "sedan": 3699,
+      "suv": 4999
+    },
+    "conditions": {
+      "seasonal": {
+        "winter": {
+          "sedan": 3999,
+          "suv": 5299
+        }
+      }
+    },
+    "active": true,
+    "priority": 1
+  },
+  {
+    "id": "kolkata-gangasagar",
+    "start": "Kolkata",
+    "end": "Gangasagar",
+    "service_type": "oneway",
+    "route_type": "religious",
+    "fares": {
+      "sedan": 2999,
+      "suv": 3999
+    },
+    "conditions": {
+      "events": {
+        "makar_sankranti": {
+          "sedan": 3999,
+          "suv": 4999
+        }
+      }
+    },
+    "active": true,
+    "priority": 1
+  },
+  {
+    "id": "gangasagar-kolkata",
+    "start": "Gangasagar",
+    "end": "Kolkata",
+    "service_type": "oneway",
+    "route_type": "religious",
+    "fares": {
+      "sedan": 2999,
+      "suv": 3999
+    },
+    "conditions": {
+      "events": {
+        "makar_sankranti": {
+          "sedan": 3999,
+          "suv": 4999
+        }
+      }
+    },
+    "active": true,
+    "priority": 1
+  },
+  {
+    "id": "kolkata-bakkhali",
+    "start": "Kolkata",
+    "end": "Bakkhali",
+    "service_type": "oneway",
+    "route_type": "tourist",
+    "fares": {
+      "sedan": 2999,
+      "suv": 3999
+    },
+    "conditions": {
+      "seasonal": {
+        "summer": {
+          "sedan": 3299,
+          "suv": 4299
+        }
+      }
+    },
+    "active": true,
+    "priority": 1
+  },
+  {
+    "id": "bakkhali-kolkata",
+    "start": "Bakkhali",
+    "end": "Kolkata",
+    "service_type": "oneway",
+    "route_type": "tourist",
+    "fares": {
+      "sedan": 2999,
+      "suv": 3999
+    },
+    "conditions": {
+      "seasonal": {
+        "summer": {
+          "sedan": 3299,
+          "suv": 4299
+        }
+      }
+    },
+    "active": true,
+    "priority": 1
+  },
+  {
+    "id": "kolkata-kakdwip",
+    "start": "Kolkata",
+    "end": "Kakdwip",
+    "service_type": "oneway",
+    "route_type": "business",
+    "fares": {
+      "sedan": 2999,
+      "suv": 3999
+    },
+    "active": true,
+    "priority": 2
+  },
+  {
+    "id": "kakdwip-kolkata",
+    "start": "Kakdwip",
+    "end": "Kolkata",
+    "service_type": "oneway",
+    "route_type": "business",
+    "fares": {
+      "sedan": 2999,
+      "suv": 3999
+    },
+    "active": true,
+    "priority": 2
+  },
+  {
+    "id": "kolkata-kolaghat",
+    "start": "Kolkata",
+    "end": "Kolaghat",
+    "service_type": "oneway",
+    "route_type": "business",
+    "fares": {
+      "sedan": 1999,
+      "suv": 2499
+    },
+    "active": true,
+    "priority": 2
+  },
+  {
+    "id": "kolaghat-kolkata",
+    "start": "Kolaghat",
+    "end": "Kolkata",
+    "service_type": "oneway",
+    "route_type": "business",
+    "fares": {
+      "sedan": 1999,
+      "suv": 2499
+    },
+    "active": true,
+    "priority": 2
+  },
+  {
+    "id": "Digha-Mandarmani",
+    "start": "Digha",
+    "end": "Mandarmani",
+    "service_type": "oneway",
+    "route_type": "tourist",
+    "fares": {
+      "sedan": 1499,
+      "suv": 1999
+    },
+    "conditions": {
+      "seasonal": {
+        "summer": {
+          "sedan": 1699,
+          "suv": 2199
+        }
+      }
+    },
+    "priority": 2,
+    "active": true
+  },
+  {
+    "id": "Digha-Mandarmani",
+    "start": "Digha",
+    "end": "Mandarmani",
+    "service_type": "oneway",
+    "route_type": "tourist",
+    "fares": {
+      "sedan": 1499,
+      "suv": 1999
+    },
+    "conditions": {
+      "seasonal": {
+        "summer": {
+          "sedan": 1699,
+          "suv": 2199
+        }
+      }
+    },
+    "priority": 2,
+    "active": true
+  },
+  {
+    "id": "Digha-Mandarmani",
+    "start": "Digha",
+    "end": "Mandarmani",
+    "service_type": "oneway",
+    "route_type": "tourist",
+    "fares": {
+      "sedan": 1499,
+      "suv": 1999
+    },
+    "conditions": {
+      "seasonal": {
+        "summer": {
+          "sedan": 1699,
+          "suv": 2199
+        }
+      }
+    },
+    "priority": 2,
+    "active": true
+  },
+  {
+    "id": "Digha-Mandarmani",
+    "start": "Digha",
+    "end": "Mandarmani",
+    "service_type": "oneway",
+    "route_type": "tourist",
+    "fares": {
+      "sedan": 1499,
+      "suv": 1999
+    },
+    "conditions": {
+      "seasonal": {
+        "summer": {
+          "sedan": 1699,
+          "suv": 2199
+        }
+      }
+    },
+    "priority": 2,
+    "active": true
+  },
+  {
+    "id": "Digha-Mandarmani",
+    "start": "Digha",
+    "end": "Mandarmani",
+    "service_type": "oneway",
+    "route_type": "tourist",
+    "fares": {
+      "sedan": 1499,
+      "suv": 1999
+    },
+    "conditions": {
+      "seasonal": {
+        "summer": {
+          "sedan": 1699,
+          "suv": 2199
+        }
+      }
+    },
+    "priority": 2,
+    "active": true
+  }
+]

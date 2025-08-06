@@ -1,345 +1,494 @@
-# ZingCab Backend API Documentation
+# 🚗 ZingCab - Geolocation-Based Cab Booking System
 
-## Overview
-This is the backend API for ZingCab, a cab booking service. The API handles booking management, fare calculation, and contact form submissions.
+[![Node.js](https://img.shields.io/badge/Node.js-18.20.8-green.svg)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-4.18.2-blue.svg)](https://expressjs.com/)
+[![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-4.4.5-purple.svg)](https://vitejs.dev/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Base URL
-- Development: `http://localhost:3001/api`
-- Production: `https://your-domain.com/api`
+## 📋 Table of Contents
 
-## Environment Variables
-Create a `.env` file in the backend directory with the following variables:
+- [Overview](#overview)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Enhanced Route System](#enhanced-route-system)
+- [Quick Start](#quick-start)
+- [API Documentation](#api-documentation)
+- [Configuration](#configuration)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
 
-```env
-SUPABASE_URL=https://ddpbdfxbqjydjptchvbm.supabase.co
-SUPABASE_ANON_KEY=your_supabase_anon_key
-PORT=3001
-NODE_ENV=development
+## 🎯 Overview
+
+ZingCab is a modern, geolocation-based cab booking system designed for West Bengal, featuring:
+
+- **Geolocation-Based Pricing**: Dynamic pricing based on geographic zones
+- **Enhanced Fixed Routes**: Seasonal, event-based, and time-based pricing
+- **Real-time Fare Calculation**: Advanced pricing algorithms
+- **Multi-Vehicle Support**: 5 core vehicle types from hatchback to crysta
+- **RESTful API**: Comprehensive backend services
+- **Modern Frontend**: React-based user interface
+
+## ✨ Features
+
+### 🗺️ Geolocation System
+- **Zone-Based Pricing**: 50+ geographic zones across West Bengal
+- **Distance Calculation**: Haversine formula for accurate distances
+- **Dynamic Zone Detection**: Real-time location-based pricing
+
+### 💰 Advanced Pricing Engine
+- **Fixed Routes**: 28+ predefined routes with special pricing
+- **Seasonal Pricing**: Summer, Monsoon, Winter adjustments
+- **Event-Based Pricing**: Festival and special event pricing
+- **Time-Based Pricing**: Peak hour and off-peak pricing
+- **Multiplier System**: Night, festive, and demand-based surcharges
+
+### 🚗 Vehicle Fleet
+- **5 Core Vehicle Types**: hatchback, sedan, suv, crysta, scorpio
+- **Flexible Pricing**: Per-km rates, rental packages, and base fares
+- **Service Types**: One-way, round-trip, rental, and airport transfers
+
+### 🔧 Technical Features
+- **RESTful API**: Comprehensive backend services
+- **Real-time Updates**: Live pricing and availability
+- **Scalable Architecture**: Microservices-ready design
+- **Security**: Helmet, CORS, rate limiting
+- **Database**: Supabase (PostgreSQL) integration
+
+## 🏗️ Architecture
+
+```
+zingcabv2.2b/
+├── 📁 frontend/                 # React frontend application
+│   ├── src/
+│   │   ├── components/         # Reusable UI components
+│   │   ├── pages/             # Page components
+│   │   ├── lib/               # Utility libraries
+│   │   └── styles/            # CSS and styling
+│   ├── public/                # Static assets
+│   └── package.json           # Frontend dependencies
+│
+├── 📁 backend/                 # Node.js backend application
+│   ├── config/                # Configuration files
+│   │   ├── car_types.json     # Vehicle pricing configuration
+│   │   ├── zones.json         # Geographic zones
+│   │   ├── routes.json        # Fixed route pricing
+│   │   ├── multipliers.json   # Surcharge multipliers
+│   │   └── policy.json        # Business policies
+│   ├── routes/                # API route handlers
+│   ├── utils/                 # Utility functions
+│   ├── test_suite/            # Comprehensive test suite
+│   └── server.js              # Main server file
+│
+├── 📁 docs/                   # Documentation
+├── 📁 scripts/                # Build and deployment scripts
+└── README.md                  # This file
 ```
 
-## API Endpoints
+## 🚀 Enhanced Route System
 
-### 1. Contact Form API
+### Overview
+The enhanced fixed route system supports dynamic pricing based on seasons, events, and time slots, providing maximum flexibility for revenue optimization.
 
-#### POST `/api/contact`
-Submit a contact form inquiry.
+### Key Features
 
-**Request Body:**
+#### **Seasonal Pricing**
+- **Summer** (March-June): Higher prices for tourist destinations
+- **Monsoon** (July-September): Lower prices due to weather
+- **Winter** (December-February): Special pricing for hill stations
+
+#### **Event-Based Pricing**
+- **beach_season**: March-June for beach destinations
+- **religious_festival**: October-November for religious sites
+- **iskcon_festival**: February-March for Mayapur
+- **makar_sankranti**: January 10-20 for Gangasagar
+
+#### **Time-Based Pricing**
+- **peak_hours**: 7 AM - 10 AM
+- **evening_peak**: 5 PM - 8 PM
+
+### Route Types
+- **tourist**: Beach destinations, hill stations
+- **business**: Industrial areas, corporate hubs
+- **religious**: Temples, pilgrimage sites
+- **educational**: Universities, educational institutions
+
+### Example Route Configuration
 ```json
 {
-  "name": "John Doe",
-  "email": "john@example.com",
-  "phone": "9876543210",
-  "subject": "General Inquiry",
-  "message": "I would like to know more about your services."
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Contact form submitted successfully",
-  "data": {
-    "id": 1,
-    "name": "John Doe",
-    "email": "john@example.com",
-    "submitted_at": "2024-01-15T10:30:00Z"
-  }
-}
-```
-
-#### GET `/api/contact`
-Get all contact submissions (admin endpoint).
-
-#### GET `/api/contact/:id`
-Get a specific contact submission by ID.
-
-### 2. Booking API
-
-#### POST `/api/booking`
-Create a new booking.
-
-**Request Body (One-way/Airport):**
-```json
-{
-  "km_limit": "150km",
-  "mobile_number": "9876543210",
-  "service_type": "oneway",
-  "pick_up_location": "Mumbai",
-  "pick_up_time": "09:00",
-  "journey_date": "2024-01-20",
-  "car_type": "sedan",
-  "drop_location": "Pune",
-  "estimated_fare": 2500,
-  "booking_source": "website",
-  "name": "John Doe",
-  "email": "john@example.com",
-  "advance_amount_paid": 500
-}
-```
-
-**Request Body (Round Trip):**
-```json
-{
-  "km_limit": "300km",
-  "mobile_number": "9876543210",
-  "service_type": "roundtrip",
-  "pick_up_location": "Mumbai",
-  "pick_up_time": "09:00",
-  "journey_date": "2024-01-20",
-  "car_type": "suv",
-  "drop_location": "Pune",
-  "estimated_fare": 4500,
-  "booking_source": "website",
-  "return_date": "2024-01-22"
-}
-```
-
-**Request Body (Rental):**
-```json
-{
-  "mobile_number": "9876543210",
-  "service_type": "rental",
-  "pick_up_location": "Mumbai",
-  "pick_up_time": "09:00",
-  "journey_date": "2024-01-20",
-  "car_type": "sedan",
-  "rental_booking_type": "8hr/80km",
-  "estimated_fare": 1200,
-  "booking_source": "website",
-  "km_limit": "80km"
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Booking created successfully",
-  "data": {
-    "booking_id": "ZC123456ABC",
-    "estimated_fare": 2500,
-    "advance_amount": 500,
-    "status": "pending",
-    "pickup_date": "2024-01-20",
-    "pickup_time": "09:00",
-    "service_type": "oneway",
-    "car_type": "sedan",
-    "km_limit": "150km",
-    "booking_date": "2024-01-15"
-  }
-}
-```
-
-#### GET `/api/booking/:bookingId`
-Get booking details by booking ID.
-
-#### GET `/api/booking`
-Get all bookings (admin endpoint).
-
-### 3. Fare Calculation API
-
-#### POST `/api/fare/estimate`
-Calculate fare estimate for all car types.
-
-**Request Body:**
-```json
-{
-  "km_limit": "150km",
-  "mobile_number": "9876543210",
-  "service_type": "oneway",
-  "pick_up_location": "Mumbai",
-  "pick_up_time": "09:00",
-  "journey_date": "2024-01-20",
-  "car_type": "sedan",
-  "drop_location": "Pune",
-  "booking_source": "website"
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "selected_car": {
-      "car_type": "sedan",
-      "estimated_fare": 2500,
-      "km_limit": "150km",
-      "breakdown": {
-        "base_fare": 1800,
-        "toll_charges": 200,
-        "state_tax": 150,
-        "gst": 324,
-        "driver_allowance": 200
+  "id": "kolkata-digha",
+  "start": "Kolkata",
+  "end": "Digha",
+  "route_type": "tourist",
+  "fares": {
+    "sedan": 3699,
+    "suv": 4499
+  },
+  "conditions": {
+    "seasonal": {
+      "summer": {
+        "sedan": 3999,
+        "suv": 4799
       }
     },
-    "all_car_fares": {
-      "hatchback": {
-        "estimated_fare": 2000,
-        "km_limit": "150km",
-        "breakdown": { ... }
-      },
-      "sedan": {
-        "estimated_fare": 2500,
-        "km_limit": "150km",
-        "breakdown": { ... }
-      },
-      "suv": {
-        "estimated_fare": 3000,
-        "km_limit": "150km",
-        "breakdown": { ... }
+    "events": {
+      "beach_season": {
+        "sedan": 4199,
+        "suv": 4999
       }
-    },
-    "service_details": {
-      "service_type": "oneway",
-      "pick_up_location": "Mumbai",
-      "drop_location": "Pune",
-      "journey_date": "2024-01-20",
-      "pick_up_time": "09:00",
-      "distance": "150km"
     }
-  }
+  },
+  "active": true,
+  "priority": 1
 }
 ```
 
-#### POST `/api/fare/calculator`
-Simple fare calculator.
+### Route Management API
+```bash
+# Get all routes
+GET /api/routes
 
-**Request Body:**
-```json
+# Add new route
+POST /api/routes
+
+# Test route pricing
+POST /api/routes/test-pricing
+
+# Get route statistics
+GET /api/routes/stats
+```
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js** 18.20.8 or higher
+- **npm** or **yarn** package manager
+- **Git** for version control
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/zingcabv2.2b.git
+   cd zingcabv2.2b
+   ```
+
+2. **Install dependencies**
+   ```bash
+   # Install backend dependencies
+   npm install
+   
+   # Install frontend dependencies (if separate)
+   cd frontend && npm install
+   ```
+
+3. **Environment Setup**
+   ```bash
+   # Backend environment
+   cp .env.example .env
+   # Edit .env with your configuration
+   
+   # Frontend environment
+   cp frontend/.env.example frontend/.env
+   # Edit frontend/.env with your configuration
+   ```
+
+4. **Start the application**
+   ```bash
+   # Start backend server
+   npm run dev:backend
+   
+   # Start frontend (in another terminal)
+   npm run dev:frontend
+   ```
+
+### Development Commands
+
+```bash
+# Backend development
+npm run dev:backend          # Start backend with nodemon
+npm run test:backend         # Run backend tests
+npm run lint:backend         # Lint backend code
+
+# Frontend development
+npm run dev:frontend         # Start frontend with Vite
+npm run build:frontend       # Build frontend for production
+npm run test:frontend        # Run frontend tests
+
+# Full stack
+npm run dev                  # Start both frontend and backend
+npm run test                 # Run all tests
+npm run build                # Build for production
+
+# Enhanced route testing
+npm run test:enhanced-routes # Test enhanced route system
+```
+
+## 📚 API Documentation
+
+### Core Endpoints
+
+#### Fare Estimation
+```http
+POST /api/fare/estimate
+Content-Type: application/json
+
 {
-  "distance": 150,
-  "service_type": "oneway",
+  "pickup_lat": 22.5726,
+  "pickup_lng": 88.3639,
+  "drop_lat": 21.6291,
+  "drop_lng": 87.5325,
   "car_type": "sedan",
-  "rental_hours": 8
+  "service_type": "oneway",
+  "pickup_time": "09:00",
+  "journey_date": "2024-01-15"
 }
 ```
 
-**Response:**
+#### Route Management
+```http
+GET    /api/routes              # Get all routes
+POST   /api/routes              # Add new route
+PUT    /api/routes/:id          # Update route
+DELETE /api/routes/:id          # Delete route
+GET    /api/routes/stats        # Get route statistics
+```
+
+#### Booking Management
+```http
+POST   /api/booking             # Create booking
+GET    /api/booking/:id         # Get booking details
+PUT    /api/booking/:id         # Update booking
+DELETE /api/booking/:id         # Cancel booking
+```
+
+### Response Format
+
 ```json
 {
   "success": true,
   "data": {
-    "estimated_fare": 2500,
+    "estimated_fare": 3699,
+    "pricing_type": "fixed_route",
     "breakdown": {
-      "base_fare": 1800,
-      "toll_charges": 200,
-      "state_tax": 150,
-      "gst": 324,
-      "driver_allowance": 200
-    },
-    "calculation_details": {
-      "distance": "150km",
-      "service_type": "oneway",
-      "car_type": "sedan"
+      "base_fare": 3699,
+      "gst": 666,
+      "driver_allowance": 200,
+      "total": 4565
     }
   }
 }
 ```
 
-## Service Types
+## ⚙️ Configuration
 
-1. **oneway**: One-way journey
-2. **airport**: Airport pickup/drop
-3. **roundtrip**: Round trip with return date
-4. **rental**: Hourly/daily rental service
+### Vehicle Types
 
-## Car Types
-
-1. **hatchback**: Small car
-2. **sedan**: Medium car
-3. **suv**: Sports Utility Vehicle
-4. **crysta**: Toyota Innova Crysta
-5. **scorpio**: Mahindra Scorpio
-
-## Fare Calculation Logic
-
-### Base Rates (per km)
-- Hatchback: ₹12/km
-- Sedan: ₹15/km
-- SUV: ₹18/km
-- Crysta: ₹20/km
-- Scorpio: ₹22/km
-
-### Service Multipliers
-- One-way: 1.0x
-- Airport: 1.3x
-- Round trip: 1.8x
-- Rental: 1.5x
-
-### Additional Charges
-- Toll charges: ₹200 (one-way/airport)
-- State tax: ₹150 (one-way/airport)
-- GST: 18% of base fare
-- Driver allowance: ₹200 (one-way/airport), ₹500 (round trip)
-
-## Error Responses
-
-All endpoints return error responses in the following format:
+The system supports 5 core vehicle types with configurable pricing:
 
 ```json
 {
-  "success": false,
-  "message": "Error description"
+  "hatchback": {
+    "base_fare": 149,
+    "per_km_oneway": 14,
+    "per_km_roundtrip": 12,
+    "rental_package": 499
+  },
+  "sedan": {
+    "base_fare": 199,
+    "per_km_oneway": 17,
+    "per_km_roundtrip": 15,
+    "rental_package": 599
+  },
+  "suv": {
+    "base_fare": 249,
+    "per_km_oneway": 18,
+    "per_km_roundtrip": 17,
+    "rental_package": 799
+  },
+  "crysta": {
+    "base_fare": 299,
+    "per_km_oneway": 20,
+    "per_km_roundtrip": 18,
+    "rental_package": 899
+  },
+  "scorpio": {
+    "base_fare": 279,
+    "per_km_oneway": 19,
+    "per_km_roundtrip": 17,
+    "rental_package": 849
+  }
 }
 ```
 
-Common HTTP status codes:
-- 400: Bad Request (validation errors)
-- 404: Not Found
-- 500: Internal Server Error
+### Geographic Zones
 
-## Running the Server
+50+ zones across West Bengal with radius-based pricing:
 
-1. Install dependencies:
-```bash
-npm install
+```json
+[
+  {
+    "district": "Kolkata",
+    "locations": [
+      {
+        "name": "Kolkata",
+        "center": { "lat": 22.5726, "lng": 88.3639 },
+        "radius_km": 20
+      }
+    ]
+  }
+]
 ```
 
-2. Set up environment variables in `.env` file
+### Fixed Routes
 
-3. Start the development server:
-```bash
-npm run dev
+Enhanced routes with conditional pricing:
+
+```json
+{
+  "id": "kolkata-digha",
+  "start": "Kolkata",
+  "end": "Digha",
+  "route_type": "tourist",
+  "fares": { "sedan": 3699, "suv": 4499 },
+  "conditions": {
+    "seasonal": {
+      "summer": { "sedan": 3999, "suv": 4799 }
+    }
+  }
+}
 ```
 
-4. Start the production server:
+## 🧪 Testing
+
+### Test Suite
+
+Comprehensive test coverage for all pricing scenarios:
+
 ```bash
+# Run all tests
+npm run test
+
+# Run specific test suites
+npm run test:fixed-routes
+npm run test:zone-based
+npm run test:standard-pricing
+npm run test:roundtrip
+npm run test:rental
+npm run test:edge-cases
+npm run test:enhanced-routes
+```
+
+### Test Coverage
+
+- ✅ **Fixed Routes**: 28+ predefined routes
+- ✅ **Zone-Based Pricing**: Intra-zone and inter-zone calculations
+- ✅ **Standard Pricing**: Fallback calculator pricing
+- ✅ **Roundtrip Service**: Special roundtrip calculations
+- ✅ **Rental Service**: Package and extra km pricing
+- ✅ **Edge Cases**: Error handling and validation
+- ✅ **Enhanced Routes**: Seasonal, event, and time-based pricing
+
+### Example Test
+
+```javascript
+// Test seasonal pricing
+const result = await axios.post('/api/routes/test-pricing', {
+  start: 'Kolkata',
+  end: 'Digha',
+  service_type: 'oneway',
+  car_type: 'sedan',
+  date: '2024-05-15', // Summer
+  time: '09:00'
+});
+
+// Expected: Summer pricing applied
+expect(result.data.data.final_fare).toBe(3999);
+```
+
+## 🚀 Deployment
+
+### Production Build
+
+```bash
+# Build frontend
+npm run build:frontend
+
+# Build backend
+npm run build:backend
+
+# Start production server
 npm start
 ```
 
-## Database Schema
+### Environment Variables
 
-### bookingtable
-- booking_id (primary key)
-- mobile_number
-- service_type
-- pick_up_location
-- drop_location
-- journey_date
-- return_date
-- pick_up_time
-- booking_date
-- car_type
-- rental_booking_type
-- estimated_fare
-- booking_source
-- km_limit
-- name
-- email
-- advance_amount_paid
-- ride_status
-- created_at
-- updated_at
+```bash
+# Backend
+PORT=3001
+NODE_ENV=production
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_key
 
-### contactustable
-- id (primary key)
-- name
-- email
-- phone
-- subject
-- message
-- status
-- created_at 
+# Frontend
+VITE_API_BASE_URL=http://localhost:3001/api
+VITE_OLAMAPS_API_KEY=your_ola_maps_key
+```
+
+### Docker Deployment
+
+```dockerfile
+# Dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+EXPOSE 3001
+CMD ["npm", "start"]
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](docs/CONTRIBUTING.md) for details.
+
+### Development Workflow
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### Code Standards
+
+- **ESLint** for JavaScript linting
+- **Prettier** for code formatting
+- **Jest** for testing
+- **Conventional Commits** for commit messages
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+- **Documentation**: [docs/](docs/) folder
+- **Issues**: [GitHub Issues](https://github.com/your-username/zingcabv2.2b/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/your-username/zingcabv2.2b/discussions)
+- **Email**: support@zingcab.in
+
+## 🙏 Acknowledgments
+
+- **Ola Maps API** for geolocation services
+- **Supabase** for database services
+- **React** and **Vite** for frontend framework
+- **Express.js** for backend framework
+- **West Bengal Tourism** for location data
+
+---
+
+**Made with ❤️ for West Bengal** 

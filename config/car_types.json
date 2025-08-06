@@ -1,0 +1,42 @@
+{
+  "hatchback": {
+    "base_fare": 149,
+    "per_km_oneway": 14,
+    "per_km_roundtrip": 12,
+    "rental_package": 499,
+    "rental_included_km": 40,
+    "rental_extra_per_km": 12
+  },
+  "sedan": {
+    "base_fare": 199,
+    "per_km_oneway": 17,
+    "per_km_roundtrip": 15,
+    "rental_package": 599,
+    "rental_included_km": 40,
+    "rental_extra_per_km": 15
+  },
+  "suv": {
+    "base_fare": 249,
+    "per_km_oneway": 18,
+    "per_km_roundtrip": 17,
+    "rental_package": 799,
+    "rental_included_km": 40,
+    "rental_extra_per_km": 15
+  },
+  "crysta": {
+    "base_fare": 299,
+    "per_km_oneway": 20,
+    "per_km_roundtrip": 18,
+    "rental_package": 899,
+    "rental_included_km": 40,
+    "rental_extra_per_km": 18
+  },
+  "scorpio": {
+    "base_fare": 279,
+    "per_km_oneway": 19,
+    "per_km_roundtrip": 17,
+    "rental_package": 849,
+    "rental_included_km": 40,
+    "rental_extra_per_km": 17
+  }
+} 

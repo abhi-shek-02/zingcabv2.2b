@@ -1,41 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const fareConfig = require('../config/fareConfig');
+const {
+  findZone,
+  findFixedRoute,
+  calculateZoneBasedFare,
+  applyMultipliers,
+  buildFareBreakdown,
+  calculateDistance
+} = require('../utils/geoUtils');
+const carTypes = require('../config/car_types.json');
+const { getCurrentTimeSlot, getCurrentEvents } = require('../utils/routeManager');
 
-// Calculate distance between two locations (mock function)
-const calculateDistance = (pickup, drop) => {
-  // Mock distance calculation - in real implementation, use Google Maps API
-  const distances = {
-    'Mumbai': { 'Pune': 150, 'Nashik': 180, 'Goa': 600 },
-    'Pune': { 'Mumbai': 150, 'Nashik': 200, 'Goa': 450 },
-    'Nashik': { 'Mumbai': 180, 'Pune': 200, 'Goa': 650 },
-    'Goa': { 'Mumbai': 600, 'Pune': 450, 'Nashik': 650 }
-  };
-  
-  return distances[pickup]?.[drop] || Math.floor(Math.random() * 200) + 50;
-};
+// Legacy functions removed - now using geoUtils.js
 
-function calculateZingCabFare({ car_type, km_limit, trip_type }) {
-  const car = fareConfig.carTypes[car_type];
-  if (!car) return 0;
-  let fare = 0;
-  if (trip_type === 'oneway' || trip_type === 'airport') {
-    fare = car.baseFare + (car.perKmOneway * km_limit);
-  } else if (trip_type === 'roundtrip') {
-    fare = car.baseFare + (car.perKmRoundtrip * km_limit);
-  } else if (trip_type === 'rental') {
-    // Rental: flat for up to 40km, extra km at flat rate
-    if (km_limit <= fareConfig.rentalIncludedKm) {
-      fare = car.rentalPackage;
-    } else {
-      const extraKm = km_limit - fareConfig.rentalIncludedKm;
-      fare = car.rentalPackage + (extraKm * fareConfig.rentalExtraPerKm);
-    }
-  }
-  return Math.round(fare);
-}
-
-// Calculate fare estimate
+// Calculate fare estimate with geolocation-based zoning
 router.post('/estimate', async (req, res) => {
   try {
     const {
@@ -49,11 +27,15 @@ router.post('/estimate', async (req, res) => {
       drop_location,
       booking_source,
       return_date,
-      rental_booking_type
+      rental_booking_type,
+      pickup_lat,
+      pickup_lng,
+      drop_lat,
+      drop_lng
     } = req.body;
 
     // Validate required fields
-    const requiredFields = ['service_type', 'pick_up_location', 'car_type'];
+    const requiredFields = ['service_type', 'car_type'];
     if (service_type !== 'rental' && !drop_location) {
       requiredFields.push('drop_location');
     }
@@ -63,6 +45,12 @@ router.post('/estimate', async (req, res) => {
     if (service_type === 'rental' && !rental_booking_type) {
       requiredFields.push('rental_booking_type');
     }
+    
+    // Validate coordinates if provided
+    if (pickup_lat && pickup_lng && drop_lat && drop_lng) {
+      requiredFields.push('pickup_lat', 'pickup_lng', 'drop_lat', 'drop_lng');
+    }
+    
     const missingFields = requiredFields.filter(field => !req.body[field]);
     if (missingFields.length > 0) {
       return res.status(400).json({
@@ -71,26 +59,100 @@ router.post('/estimate', async (req, res) => {
       });
     }
 
-    // Use km_limit from payload for all car types
+    // Zone detection
+    const pickupZone = pickup_lat && pickup_lng ? findZone(pickup_lat, pickup_lng) : null;
+    const dropZone = drop_lat && drop_lng ? findZone(drop_lat, drop_lng) : null;
+    
+    // Calculate actual distance if coordinates provided
+    let actualDistance = Number(km_limit);
+    if (pickup_lat && pickup_lng && drop_lat && drop_lng) {
+      actualDistance = Math.round(calculateDistance(pickup_lat, pickup_lng, drop_lat, drop_lng));
+    }
+
+    // Check for night and festive periods (simplified for Phase 1)
+    const isNight = false; // Phase 1: No night charges
+    const isFestive = false; // Phase 1: No festive charges
+
+    // Pricing logic decision
+    let pricingType, baseFare, estimatedFare;
+    
+    if (pickupZone === dropZone && pickupZone) {
+      // Same zone - local pricing
+      pricingType = 'zone_based';
+      baseFare = calculateZoneBasedFare(pickupZone, dropZone, car_type, actualDistance, service_type);
+    } else if (pickupZone && dropZone) {
+      // Different zones - check fixed route first
+      const fixedFare = findFixedRoute(pickupZone, dropZone, service_type, car_type);
+      if (fixedFare) {
+        pricingType = 'fixed_route';
+        baseFare = Number(fixedFare.final_fare); // Ensure it's a number
+        estimatedFare = fixedFare; // Keep the full object for response
+      } else {
+        pricingType = 'zone_based';
+        baseFare = calculateZoneBasedFare(pickupZone, dropZone, car_type, actualDistance, service_type);
+        estimatedFare = applyMultipliers(baseFare, service_type, isNight, isFestive);
+      }
+    } else {
+      // Outside zones - standard pricing
+      pricingType = 'standard';
+      baseFare = calculateZoneBasedFare(null, null, car_type, actualDistance, service_type);
+      estimatedFare = applyMultipliers(baseFare, service_type, isNight, isFestive);
+    }
+
+    // Apply multipliers (only for non-fixed routes)
+    if (pricingType !== 'fixed_route') {
+      estimatedFare = applyMultipliers(baseFare, service_type, isNight, isFestive);
+    }
+    
+    // Build breakdown
+    let breakdown;
+    if (pricingType === 'fixed_route') {
+      // For fixed routes, use the fare amount for breakdown calculation
+      breakdown = buildFareBreakdown(baseFare, service_type, isNight, isFestive, baseFare);
+    } else {
+      breakdown = buildFareBreakdown(baseFare, service_type, isNight, isFestive, estimatedFare);
+    }
+
+    // Calculate fares for all car types
     const allCarFares = {};
-    Object.keys(fareConfig.carTypes).forEach(carType => {
-      const calcKm = Number(km_limit) * 1.1; // Add 10% buffer for calculation only
+    Object.keys(carTypes).forEach(carType => {
+      let carBaseFare, carFinalFare, carBreakdown;
+      
+      if (pricingType === 'fixed_route') {
+        const carFixedFare = findFixedRoute(pickupZone, dropZone, service_type, carType);
+        if (carFixedFare) {
+          carBaseFare = Number(carFixedFare.final_fare); // Ensure it's a number
+          carFinalFare = carFixedFare;
+          carBreakdown = buildFareBreakdown(carBaseFare, service_type, isNight, isFestive, carBaseFare);
+        } else {
+          carBaseFare = calculateZoneBasedFare(pickupZone, dropZone, carType, actualDistance, service_type);
+          carFinalFare = applyMultipliers(carBaseFare, service_type, isNight, isFestive);
+          carBreakdown = buildFareBreakdown(carBaseFare, service_type, isNight, isFestive, carFinalFare);
+        }
+      } else {
+        carBaseFare = calculateZoneBasedFare(pickupZone, dropZone, carType, actualDistance, service_type);
+        carFinalFare = applyMultipliers(carBaseFare, service_type, isNight, isFestive);
+        carBreakdown = buildFareBreakdown(carBaseFare, service_type, isNight, isFestive, carFinalFare);
+      }
+      
       allCarFares[carType] = {
-        estimated_fare: calculateZingCabFare({ car_type: carType, km_limit: calcKm, trip_type: service_type }),
-        km_limit: Number(km_limit), // Always return the original km_limit
-        breakdown: {},
-        message: ''
+        estimated_fare: carFinalFare,
+        km_limit: actualDistance,
+        breakdown: carBreakdown
       };
     });
-
-    // Get the selected car type fare
-    const selectedCarFare = allCarFares[car_type] || allCarFares['sedan'];
-    selectedCarFare.km_limit = Number(km_limit);
 
     const fareData = {
       selected_car: {
         car_type,
-        ...selectedCarFare
+        estimated_fare: estimatedFare,
+        pricing_type: pricingType,
+        zone_info: {
+          pickup_zone: pickupZone,
+          drop_zone: dropZone
+        },
+        km_limit: actualDistance,
+        breakdown: breakdown
       },
       all_car_fares: allCarFares,
       service_details: {
@@ -101,7 +163,10 @@ router.post('/estimate', async (req, res) => {
         pick_up_time: pick_up_time || '09:00',
         return_date: service_type === 'roundtrip' ? return_date : null,
         rental_duration: service_type === 'rental' ? rental_booking_type : null,
-        distance: Number(km_limit)
+        distance: actualDistance,
+        pricing_logic: pricingType,
+        night_charge_applied: isNight,
+        festive_charge_applied: isFestive
       }
     };
 
@@ -119,14 +184,20 @@ router.post('/estimate', async (req, res) => {
   }
 });
 
-// Get fare calculator
+// Get fare calculator with zone support
 router.post('/calculator', async (req, res) => {
   try {
     const {
       distance,
       service_type,
       car_type,
-      rental_hours
+      rental_hours,
+      pickup_lat,
+      pickup_lng,
+      drop_lat,
+      drop_lng,
+      pick_up_time,
+      journey_date
     } = req.body;
 
     if (!distance || !service_type || !car_type) {
@@ -136,55 +207,60 @@ router.post('/calculator', async (req, res) => {
       });
     }
 
-    const carTypeRates = {
-      'hatchback': { base: 12, premium: 1.0 },
-      'sedan': { base: 15, premium: 1.2 },
-      'suv': { base: 18, premium: 1.5 },
-      'crysta': { base: 20, premium: 1.8 },
-      'scorpio': { base: 22, premium: 2.0 }
-    };
+    // Zone detection if coordinates provided
+    const pickupZone = pickup_lat && pickup_lng ? findZone(pickup_lat, pickup_lng) : null;
+    const dropZone = drop_lat && drop_lng ? findZone(drop_lat, drop_lng) : null;
+    
+    // Check for night and festive periods
+    const isNight = pick_up_time ? isNightTime(pick_up_time) : false;
+    const isFestive = journey_date ? isFestivePeriod(journey_date) : false;
 
-    const serviceMultipliers = {
-      'oneway': 1.0,
-      'airport': 1.3,
-      'roundtrip': 1.8,
-      'rental': 1.5
-    };
-
-    const rate = carTypeRates[car_type] || carTypeRates['sedan'];
-    const multiplier = serviceMultipliers[service_type] || 1.0;
-
-    let baseFare = 0;
-    if (service_type === 'rental') {
-      const hours = rental_hours || 4;
-      baseFare = hours * rate.base * 50 * multiplier;
+    // Pricing logic decision
+    let pricingType, baseFare;
+    
+    if (pickupZone === dropZone && pickupZone) {
+      // Same zone - local pricing
+      pricingType = 'zone_based';
+      baseFare = calculateZoneBasedFare(pickupZone, dropZone, car_type, distance, service_type);
+    } else if (pickupZone && dropZone) {
+      // Different zones - check fixed route first
+      const fixedFare = findFixedRoute(pickupZone, dropZone, service_type, car_type);
+      if (fixedFare) {
+        pricingType = 'fixed_route';
+        baseFare = fixedFare;
+      } else {
+        pricingType = 'zone_based';
+        baseFare = calculateZoneBasedFare(pickupZone, dropZone, car_type, distance, service_type);
+      }
     } else {
-      baseFare = distance * rate.base * multiplier;
+      // Outside zones - standard pricing
+      pricingType = 'standard';
+      baseFare = calculateZoneBasedFare(null, null, car_type, distance, service_type);
     }
 
-    const tollCharges = (service_type === 'oneway' || service_type === 'airport') ? 200 : 0;
-    const stateTax = (service_type === 'oneway' || service_type === 'airport') ? 150 : 0;
-    const gst = Math.round(baseFare * 0.18);
-    const driverAllowance = service_type === 'roundtrip' ? 500 : 200;
+    // Apply multipliers
+    const estimatedFare = applyMultipliers(baseFare, service_type, isNight, isFestive);
     
-    const totalFare = baseFare + tollCharges + stateTax + gst + driverAllowance;
+    // Build breakdown
+    const breakdown = buildFareBreakdown(baseFare, service_type, isNight, isFestive, estimatedFare);
 
     res.json({
       success: true,
       data: {
-        estimated_fare: Math.round(totalFare),
-        breakdown: {
-          base_fare: Math.round(baseFare),
-          toll_charges: tollCharges,
-          state_tax: stateTax,
-          gst: gst,
-          driver_allowance: driverAllowance
+        estimated_fare: estimatedFare,
+        pricing_type: pricingType,
+        zone_info: {
+          pickup_zone: pickupZone,
+          drop_zone: dropZone
         },
+        breakdown: breakdown,
         calculation_details: {
           distance: `${distance}km`,
           service_type,
           car_type,
-          rental_hours: service_type === 'rental' ? (rental_hours || 4) : null
+          rental_hours: service_type === 'rental' ? (rental_hours || 4) : null,
+          night_charge_applied: isNight,
+          festive_charge_applied: isFestive
         }
       }
     });

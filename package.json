@@ -1,31 +1,107 @@
 {
-  "name": "zingcab-backend",
-  "version": "1.0.0",
-  "description": "ZingCab Backend API",
+  "name": "zingcab",
+  "version": "2.2.0",
+  "description": "Geolocation-based cab booking system for West Bengal with advanced pricing engine",
   "main": "server.js",
   "scripts": {
-    "dev": "env-cmd -f ./.env.development node server.js",
-    "prod": "env-cmd -f ./.env.production nodemon server.js",
-    "build": "echo 'No build step required'",
-    "test": "cross-env NODE_ENV=test jest --testTimeout=10000"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "dev:backend": "nodemon server.js",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "echo 'Backend is ready to run'",
+    "build:frontend": "cd frontend && npm run build",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "node test_suite/run_all_tests.js",
+    "test:frontend": "cd frontend && npm test",
+    "test:fixed-routes": "node test_suite/01_fixed_routes_test.js",
+    "test:zone-based": "node test_suite/02_zone_based_test.js",
+    "test:standard-pricing": "node test_suite/03_standard_pricing_test.js",
+    "test:roundtrip": "node test_suite/04_roundtrip_test.js",
+    "test:rental": "node test_suite/05_rental_test.js",
+    "test:edge-cases": "node test_suite/06_edge_cases_test.js",
+    "test:enhanced-routes": "node test_suite/07_enhanced_routes_test.js",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "eslint . --ext .js",
+    "lint:frontend": "cd frontend && npm run lint",
+    "format": "prettier --write .",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:pm2": "./scripts/deploy.sh deploy pm2",
+    "deploy:nginx": "./scripts/deploy.sh deploy nginx",
+    "deploy:ssl": "./scripts/deploy.sh deploy ssl",
+    "rollback": "./scripts/deploy.sh rollback",
+    "health": "./scripts/deploy.sh health",
+    "docs": "npm run docs:generate && npm run docs:serve",
+    "docs:generate": "jsdoc -c jsdoc.json",
+    "docs:serve": "http-server docs/out -p 8080",
+    "clean": "rm -rf node_modules package-lock.json && npm install",
+    "reset": "npm run clean && npm run test"
+  },
+  "keywords": [
+    "cab-booking",
+    "geolocation",
+    "pricing-engine",
+    "west-bengal",
+    "transportation",
+    "api",
+    "nodejs",
+    "express",
+    "react",
+    "vite"
+  ],
+  "author": {
+    "name": "ZingCab Team",
+    "email": "team@zingcab.in",
+    "url": "https://zingcab.in"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zingcab/zingcabv2.2b.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zingcab/zingcabv2.2b/issues"
+  },
+  "homepage": "https://zingcab.in",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "env-cmd": "^10.1.0",
     "express": "^4.18.2",
-    "express-rate-limit": "^7.1.5",
+    "cors": "^2.8.5",
     "helmet": "^7.1.0",
-    "pg": "^8.16.2"
+    "express-rate-limit": "^7.1.5",
+    "dotenv": "^16.3.1",
+    "@supabase/supabase-js": "^2.38.4",
+    "axios": "^1.6.2"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3",
-    "jest": "^30.0.2",
     "nodemon": "^3.0.2",
-    "supertest": "^7.1.1"
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.1",
+    "jsdoc": "^4.0.2",
+    "http-server": "^14.1.1"
   },
-  "engines": {
-    "node": ">=18.0.0"
+  "config": {
+    "port": 3002,
+    "node_env": "development"
+  },
+  "files": [
+    "server.js",
+    "routes/",
+    "config/",
+    "utils/",
+    "test_suite/",
+    "scripts/",
+    "docs/"
+  ],
+  "directories": {
+    "lib": "utils",
+    "test": "test_suite",
+    "docs": "docs"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

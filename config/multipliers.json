@@ -1,0 +1,44 @@
+{
+  "enable_night": false,
+  "enable_festive": false,
+  "enable_toll": false,
+  "night": {
+    "oneway": 1.0,
+    "roundtrip": 1.0,
+    "rental": 1.0,
+    "airport": 1.0
+  },
+  "festive": {
+    "oneway": 1.0,
+    "roundtrip": 1.0,
+    "rental": 1.0,
+    "airport": 1.0
+  },
+  "toll": {
+    "oneway": 0,
+    "roundtrip": 0,
+    "rental": 0,
+    "airport": 0
+  },
+  "night_hours": {
+    "start": 22,
+    "end": 6
+  },
+  "festive_periods": [
+    {
+      "name": "Durga Puja",
+      "start": "10-01",
+      "end": "10-15"
+    },
+    {
+      "name": "Diwali",
+      "start": "11-01",
+      "end": "11-15"
+    },
+    {
+      "name": "Christmas",
+      "start": "12-20",
+      "end": "12-31"
+    }
+  ]
+} 

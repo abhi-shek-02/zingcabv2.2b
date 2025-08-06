@@ -7,9 +7,10 @@ require('dotenv').config();
 const bookingRoutes = require('./routes/booking');
 const contactRoutes = require('./routes/contact');
 const fareRoutes = require('./routes/fare');
+const routeManagementRoutes = require('./routes/routes');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // Security middleware
 app.use(helmet());
@@ -47,6 +48,7 @@ app.get('/health', (req, res) => {
 app.use('/api/booking', bookingRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/fare', fareRoutes);
+app.use('/api/routes', routeManagementRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
