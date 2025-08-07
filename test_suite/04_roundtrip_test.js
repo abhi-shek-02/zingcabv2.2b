@@ -1,6 +1,9 @@
 const axios = require('axios');
-
-const BASE_URL = 'http://localhost:5000';
+// Add delay function to prevent rate limiting
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+const BASE_URL = 'http://localhost:3002';
 
 // Test Suite 4: Roundtrip Service Tests
 const roundtripTests = [
@@ -14,7 +17,7 @@ const roundtripTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 180,
       journey_date: '2024-08-10',
@@ -137,7 +140,7 @@ const roundtripTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 180,
       journey_date: '2024-08-10',
@@ -188,7 +191,7 @@ const roundtripTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 180,
       journey_date: '2024-10-12',
@@ -268,7 +271,7 @@ async function runRoundtripTests() {
       console.log(`\n📋 Testing: ${test.name}`);
       
       const response = await axios.post(`${BASE_URL}/api/fare/estimate`, test.payload);
-      
+      await delay(100); // Add 100ms delay between API calls      
       const result = response.data.data.selected_car;
       const serviceDetails = response.data.data.service_details;
       const isSuccess = response.data.success;

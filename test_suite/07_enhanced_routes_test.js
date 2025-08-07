@@ -1,5 +1,8 @@
 const axios = require('axios');
-
+// Add delay function to prevent rate limiting
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 const BASE_URL = 'http://localhost:3002/api';
 
 // Test data
@@ -156,7 +159,7 @@ async function testEnhancedRoutes() {
       console.log(`📋 Data: ${JSON.stringify(scenario.data)}`);
       
       const response = await axios.post(`${BASE_URL}/routes/test-pricing`, scenario.data);
-      
+      await delay(100); // Add 100ms delay between API calls      
       console.log('✅ Result:');
       console.log(JSON.stringify(response.data, null, 2));
       

@@ -105,7 +105,7 @@ function findFixedRoute(startZone, endZone, serviceType, carType, options = {}) 
   } = options;
   
   // Find matching route
-  const route = routes.find(r => 
+  let route = routes.find(r => 
     r.start === startZone && 
     r.end === endZone && 
     r.service_type === serviceType &&

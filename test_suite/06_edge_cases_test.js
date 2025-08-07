@@ -1,6 +1,9 @@
 const axios = require('axios');
-
-const BASE_URL = 'http://localhost:5000';
+// Add delay function to prevent rate limiting
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+const BASE_URL = 'http://localhost:3002';
 
 // Test Suite 6: Edge Cases and Error Scenarios
 const edgeCaseTests = [
@@ -13,7 +16,7 @@ const edgeCaseTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 180,
       journey_date: '2024-08-10',
@@ -35,7 +38,7 @@ const edgeCaseTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       km_limit: 180,
       journey_date: '2024-08-10',
       pick_up_time: '10:00',
@@ -55,7 +58,7 @@ const edgeCaseTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 180,
       journey_date: '2024-08-10',
@@ -77,7 +80,7 @@ const edgeCaseTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 180,
       journey_date: '2024-08-10',
@@ -99,7 +102,7 @@ const edgeCaseTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 40,
       journey_date: '2024-08-10',
@@ -122,7 +125,7 @@ const edgeCaseTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'invalid_car',
       km_limit: 180,
       journey_date: '2024-08-10',
@@ -144,7 +147,7 @@ const edgeCaseTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 180,
       journey_date: '2024-08-10',
@@ -234,7 +237,7 @@ const edgeCaseTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 180,
       journey_date: 'invalid-date',
@@ -256,7 +259,7 @@ const edgeCaseTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 180,
       journey_date: '2024-08-10',
@@ -279,7 +282,7 @@ const edgeCaseTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 180,
       journey_date: '2024-08-10',
@@ -301,7 +304,7 @@ const edgeCaseTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 180,
       journey_date: '2024-08-10',
@@ -324,7 +327,7 @@ const edgeCaseTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 180,
       journey_date: '2024-08-10',
@@ -346,7 +349,7 @@ const edgeCaseTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 180,
       journey_date: '2024-08-10',
@@ -373,7 +376,7 @@ async function runEdgeCaseTests() {
       console.log(`\n📋 Testing: ${test.name}`);
       
       const response = await axios.post(`${BASE_URL}/api/fare/estimate`, test.payload);
-      
+      await delay(100); // Add 100ms delay between API calls      
       // If test expects to fail
       if (test.expected.shouldFail) {
         if (response.data.success) {

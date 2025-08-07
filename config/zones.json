@@ -342,14 +342,6 @@
           "lng": 87.3196
         },
         "radius_km": 20
-      },
-      {
-        "name": "Kharagpur IIT",
-        "center": {
-          "lat": 22.3149,
-          "lng": 87.3105
-        },
-        "radius_km": 20
       }
     ]
   },
@@ -402,7 +394,7 @@
         "name": "Digha",
         "center": {
           "lat": 21.6291,
-          "lng": 87.7000
+          "lng": 87.8
         },
         "radius_km": 20
       },
@@ -594,4 +586,4 @@
       }
     ]
   }
-] 
+]

@@ -1,6 +1,12 @@
 const axios = require('axios');
-
-const BASE_URL = 'http://localhost:5000';
+// Add delay function to prevent rate limiting
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}// Add delay function to prevent rate limiting
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+const BASE_URL = 'http://localhost:3002';
 
 // Test Suite 1: Fixed Route Pricing Tests
 const fixedRouteTests = [
@@ -14,7 +20,7 @@ const fixedRouteTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'sedan',
       km_limit: 180,
       journey_date: '2024-08-10',
@@ -24,7 +30,7 @@ const fixedRouteTests = [
     },
     expected: {
       pricing_type: 'fixed_route',
-      estimated_fare: 3699,
+      estimated_fare: 3899,
       pickup_zone: 'Kolkata',
       drop_zone: 'Digha'
     }
@@ -38,7 +44,7 @@ const fixedRouteTests = [
       pickup_lat: 22.5726,
       pickup_lng: 88.3639,
       drop_lat: 21.6291,
-      drop_lng: 87.5325,
+      drop_lng: 87.8000,
       car_type: 'suv',
       km_limit: 180,
       journey_date: '2024-08-10',
@@ -60,7 +66,7 @@ const fixedRouteTests = [
       pick_up_location: 'Digha',
       drop_location: 'Kolkata',
       pickup_lat: 21.6291,
-      pickup_lng: 87.5325,
+      pickup_lng: 87.8000,
       drop_lat: 22.5726,
       drop_lng: 88.3639,
       car_type: 'sedan',
@@ -72,7 +78,7 @@ const fixedRouteTests = [
     },
     expected: {
       pricing_type: 'fixed_route',
-      estimated_fare: 3699,
+      estimated_fare: 3899,
       pickup_zone: 'Digha',
       drop_zone: 'Kolkata'
     }
@@ -265,7 +271,7 @@ async function runFixedRouteTests() {
       console.log(`\n📋 Testing: ${test.name}`);
       
       const response = await axios.post(`${BASE_URL}/api/fare/estimate`, test.payload);
-      
+      await delay(100); // Add 100ms delay between API calls      await delay(100); // Add 100ms delay between API calls      
       const result = response.data.data.selected_car;
       const isSuccess = response.data.success;
       

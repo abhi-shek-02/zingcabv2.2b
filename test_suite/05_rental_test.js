@@ -1,6 +1,9 @@
 const axios = require('axios');
-
-const BASE_URL = 'http://localhost:5000';
+// Add delay function to prevent rate limiting
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+const BASE_URL = 'http://localhost:3002';
 
 // Test Suite 5: Rental Service Tests
 const rentalTests = [
@@ -272,7 +275,7 @@ async function runRentalTests() {
       console.log(`\n📋 Testing: ${test.name}`);
       
       const response = await axios.post(`${BASE_URL}/api/fare/estimate`, test.payload);
-      
+      await delay(100); // Add 100ms delay between API calls      
       const result = response.data.data.selected_car;
       const serviceDetails = response.data.data.service_details;
       const isSuccess = response.data.success;

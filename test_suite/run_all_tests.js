@@ -1,9 +1,20 @@
 const { runFixedRouteTests } = require('./01_fixed_routes_test');
-const { runZoneBasedTests } = require('./02_zone_based_test');
+// Add delay function to prevent rate limiting
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}const { runZoneBasedTests } = require('./02_zone_based_test');
 const { runStandardPricingTests } = require('./03_standard_pricing_test');
-const { runRoundtripTests } = require('./04_roundtrip_test');
+// Add delay function to prevent rate limiting
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}const { runRoundtripTests } = require('./04_roundtrip_test');
 const { runRentalTests } = require('./05_rental_test');
 const { runEdgeCaseTests } = require('./06_edge_cases_test');
+
+// Add delay function to prevent rate limiting
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 async function runAllTestSuites() {
   console.log('🚀 ZINGCAB COMPREHENSIVE TEST SUITE');
@@ -18,27 +29,27 @@ async function runAllTestSuites() {
   try {
     console.log('\n🎯 Starting Test Suite 1: Fixed Route Pricing Tests');
     const fixedRouteResults = await runFixedRouteTests();
-    results.push({ suite: 'Fixed Routes', ...fixedRouteResults });
+    await delay(500);    results.push({ suite: 'Fixed Routes', ...fixedRouteResults });
     
     console.log('\n🎯 Starting Test Suite 2: Zone-Based Pricing Tests');
     const zoneBasedResults = await runZoneBasedTests();
-    results.push({ suite: 'Zone-Based', ...zoneBasedResults });
+    await delay(500);    results.push({ suite: 'Zone-Based', ...zoneBasedResults });
     
     console.log('\n🎯 Starting Test Suite 3: Standard Pricing Tests');
     const standardResults = await runStandardPricingTests();
-    results.push({ suite: 'Standard Pricing', ...standardResults });
+    await delay(500);    results.push({ suite: 'Standard Pricing', ...standardResults });
     
     console.log('\n🎯 Starting Test Suite 4: Roundtrip Service Tests');
     const roundtripResults = await runRoundtripTests();
-    results.push({ suite: 'Roundtrip', ...roundtripResults });
+    await delay(500);    results.push({ suite: 'Roundtrip', ...roundtripResults });
     
     console.log('\n🎯 Starting Test Suite 5: Rental Service Tests');
     const rentalResults = await runRentalTests();
-    results.push({ suite: 'Rental', ...rentalResults });
+    await delay(500);    results.push({ suite: 'Rental', ...rentalResults });
     
     console.log('\n🎯 Starting Test Suite 6: Edge Cases and Error Scenarios');
     const edgeCaseResults = await runEdgeCaseTests();
-    results.push({ suite: 'Edge Cases', ...edgeCaseResults });
+    await delay(1000); // Add 1 second delay between test suites    results.push({ suite: 'Edge Cases', ...edgeCaseResults });
     
   } catch (error) {
     console.error('❌ Error running test suites:', error.message);

@@ -60,7 +60,7 @@ function calculateZoneBasedFare(pickupZone, dropZone, carType, distance, service
   if (serviceType === 'oneway' || serviceType === 'airport') {
     fare = car.base_fare + (car.per_km_oneway * distance);
   } else if (serviceType === 'roundtrip') {
-    fare = car.base_fare + (car.per_km_roundtrip * distance * 2);
+    fare = car.base_fare + (car.per_km_oneway * distance * 2);
   } else if (serviceType === 'rental') {
     if (distance <= car.rental_included_km) {
       fare = car.rental_package;
