@@ -161,10 +161,14 @@ router.post('/estimate', async (req, res) => {
     const pickupZone = pickup_lat && pickup_lng ? findZone(pickup_lat, pickup_lng) : null;
     const dropZone = drop_lat && drop_lng ? findZone(drop_lat, drop_lng) : null;
     
-    // Calculate actual distance if coordinates provided
+    // Use the provided distance (km_limit) from user input
+    // This respects the actual road distance from mapping services like OLA Maps
     let actualDistance = Number(km_limit);
+    
+    // Optional: Log the difference between user input and straight-line distance for debugging
     if (pickup_lat && pickup_lng && drop_lat && drop_lng) {
-      actualDistance = Math.round(calculateDistance(pickup_lat, pickup_lng, drop_lat, drop_lng));
+      const straightLineDistance = Math.round(calculateDistance(pickup_lat, pickup_lng, drop_lat, drop_lng));
+      console.log(`📏 Distance comparison: User input: ${actualDistance}km, Straight-line: ${straightLineDistance}km`);
     }
 
     // Check for night and festive periods (simplified for Phase 1)
