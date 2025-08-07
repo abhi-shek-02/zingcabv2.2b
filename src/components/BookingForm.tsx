@@ -4,11 +4,42 @@ import { MapPin, Calendar, Car, ArrowRight, Clock, Phone, MessageCircle, AlertCi
 import Modal from './Modal';
 import { getDistanceInKm } from '../lib/olamaps';
 
+interface FareBreakdown {
+  base_fare: number;
+  night_charge: number;
+  festive_charge: number;
+  gst: number;
+  driver_allowance: number;
+  total: number;
+}
+
 interface FareData {
   estimated_fare: number;
-  km_limit: string;
-  breakdown: any;
-  message: string;
+  km_limit: number;
+  breakdown: FareBreakdown;
+}
+
+interface SelectedCarData extends FareData {
+  car_type: string;
+  pricing_type: string;
+  zone_info: {
+    pickup_zone: string | null;
+    drop_zone: string | null;
+  };
+}
+
+interface ServiceDetails {
+  service_type: string;
+  pick_up_location: string;
+  drop_location: string | null;
+  journey_date: string;
+  pick_up_time: string;
+  return_date: string | null;
+  rental_duration: string | null;
+  distance: number;
+  pricing_logic: string;
+  night_charge_applied: boolean;
+  festive_charge_applied: boolean;
 }
 
 interface AllCarFares {
@@ -40,8 +71,9 @@ const BookingForm = () => {
   const isSuggestionClicked = useRef(false);
   const [errors, setErrors] = useState<any>({});
   const [fareData, setFareData] = useState<{
-    selected_car: FareData | null;
+    selected_car: SelectedCarData | null;
     all_car_fares: AllCarFares | null;
+    service_details?: ServiceDetails;
   }>({ selected_car: null, all_car_fares: null });
 
   const [bookingResponseData, setBookingResponseData] = useState<any>(null);
