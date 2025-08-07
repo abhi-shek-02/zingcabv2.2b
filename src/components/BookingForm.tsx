@@ -400,7 +400,19 @@ const BookingForm = () => {
 
       setFareData(data.data);
     } catch (error: any) {
-      setApiStatus(prev => ({ ...prev, error: error.message }));
+      console.error('Fare calculation error:', error);
+      let errorMessage = 'Failed to calculate fare.';
+      
+      // Handle new backend validation error structure
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        errorMessage = error.response.data.errors.join(', ');
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setApiStatus(prev => ({ ...prev, error: errorMessage }));
     } finally {
       setApiStatus(prev => ({ ...prev, isLoading: false }));
     }
@@ -688,7 +700,19 @@ const BookingForm = () => {
 
       setFareData(data.data);
     } catch (error: any) {
-      setApiStatus(prev => ({ ...prev, error: error.message }));
+      console.error('Fare calculation error:', error);
+      let errorMessage = 'Failed to calculate fare.';
+      
+      // Handle new backend validation error structure
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        errorMessage = error.response.data.errors.join(', ');
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setApiStatus(prev => ({ ...prev, error: errorMessage }));
     } finally {
       setApiStatus(prev => ({ ...prev, isLoading: false }));
     }
@@ -1001,7 +1025,117 @@ const BookingForm = () => {
             <p className="text-4xl font-extrabold text-blue-600">
               ₹{fareData.selected_car.estimated_fare.toLocaleString('en-IN')}
             </p>
-            <p className="text-sm text-gray-600 mt-1">for {formData.carType} (up to {fareData.selected_car.km_limit})</p>
+            <p className="text-sm text-gray-600 mt-1">for {formData.carType} (up to {fareData.selected_car.km_limit}km)</p>
+            
+            {/* NEW: Display Pricing Type */}
+            <div className="mt-3 flex justify-center">
+              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                fareData.selected_car.pricing_type === 'fixed_route' 
+                  ? 'bg-green-100 text-green-800' 
+                  : fareData.selected_car.pricing_type === 'zone_based'
+                  ? 'bg-blue-100 text-blue-800'
+                  : 'bg-gray-100 text-gray-800'
+              }`}>
+                {fareData.selected_car.pricing_type === 'fixed_route' ? '🎯 Fixed Route' :
+                 fareData.selected_car.pricing_type === 'zone_based' ? '🗺️ Zone-Based' :
+                 '🧮 Standard Pricing'}
+              </span>
+            </div>
+
+            {/* NEW: Display Zone Information */}
+            {fareData.selected_car.zone_info && (
+              <div className="mt-4 p-3 bg-white rounded-lg border">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Route Information</h4>
+                <div className="flex justify-between items-center text-sm">
+                  <div className="flex items-center">
+                    <span className="text-green-600 font-medium">From:</span>
+                    <span className="ml-2 text-gray-800">
+                      {fareData.selected_car.zone_info.pickup_zone || 'Outside zones'}
+                    </span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-gray-400" />
+                  <div className="flex items-center">
+                    <span className="text-blue-600 font-medium">To:</span>
+                    <span className="ml-2 text-gray-800">
+                      {fareData.selected_car.zone_info.drop_zone || 'Outside zones'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* NEW: Detailed Fare Breakdown */}
+            <div className="mt-4 p-4 bg-white rounded-lg border">
+              <h4 className="text-sm font-semibold text-gray-700 mb-3">Fare Breakdown</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Base Fare:</span>
+                  <span className="font-medium">₹{fareData.selected_car.breakdown.base_fare.toLocaleString('en-IN')}</span>
+                </div>
+                
+                {fareData.selected_car.breakdown.night_charge > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Night Charge:</span>
+                    <span className="font-medium text-orange-600">₹{fareData.selected_car.breakdown.night_charge.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+                
+                {fareData.selected_car.breakdown.festive_charge > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Festive Charge:</span>
+                    <span className="font-medium text-purple-600">₹{fareData.selected_car.breakdown.festive_charge.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600">GST (18%):</span>
+                  <span className="font-medium">₹{fareData.selected_car.breakdown.gst.toLocaleString('en-IN')}</span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Driver Allowance:</span>
+                  <span className="font-medium">₹{fareData.selected_car.breakdown.driver_allowance.toLocaleString('en-IN')}</span>
+                </div>
+                
+                <hr className="my-2" />
+                
+                <div className="flex justify-between font-bold text-lg">
+                  <span className="text-gray-800">Total Amount:</span>
+                  <span className="text-blue-600">₹{fareData.selected_car.breakdown.total.toLocaleString('en-IN')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* NEW: Service Details Display */}
+      {fareData.service_details && (
+        <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <h4 className="text-sm font-semibold text-gray-700 mb-3">Service Information</h4>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <span className="text-gray-600">Distance:</span>
+              <span className="ml-2 font-medium">{fareData.service_details.distance}km</span>
+            </div>
+            <div>
+              <span className="text-gray-600">Pricing Logic:</span>
+              <span className="ml-2 font-medium capitalize">{fareData.service_details.pricing_logic.replace('_', ' ')}</span>
+            </div>
+            {fareData.service_details.night_charge_applied && (
+              <div className="col-span-2">
+                <span className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
+                  🌙 Night charges applied
+                </span>
+              </div>
+            )}
+            {fareData.service_details.festive_charge_applied && (
+              <div className="col-span-2">
+                <span className="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
+                  🎉 Festive charges applied
+                </span>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1021,7 +1155,7 @@ const BookingForm = () => {
                   <h4 className="font-bold text-gray-900 text-sm">{carInfo.name}</h4>
                   <p className="text-xs text-gray-600">{carInfo.seats}, {carInfo.example}</p>
                   <p className="text-lg font-bold text-gray-800 mt-2">₹{fare.estimated_fare.toLocaleString('en-IN')}</p>
-                  <p className="text-xs text-gray-500">Up to {fare.km_limit}</p>
+                  <p className="text-xs text-gray-500">Up to {fare.km_limit}km</p>
                 </div>
               )
             })}
