@@ -19,8 +19,10 @@ Create a `.env` file in the root directory:
 PORT=3002
 NODE_ENV=development
 SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
+SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
+
+**Note:** If you don't have Supabase credentials, the app will run with a mock database for development.
 
 ### Running the Application
 
@@ -34,10 +36,13 @@ npm run dev
 npm start
 ```
 
-**Run tests:**
+**Build for production:**
 ```bash
-npm test
+npm run build
 ```
+*Validates JavaScript syntax, checks required config files, and prepares for deployment*
+
+
 
 ## API Endpoints
 
@@ -53,8 +58,7 @@ npm test
 ├── server.js          # Main server file
 ├── routes/            # API route handlers
 ├── config/            # Configuration files
-├── utils/             # Utility functions
-└── test_suite/        # Test files
+└── utils/             # Utility functions
 ```
 
 ## License
