@@ -22,10 +22,10 @@ const About = () => {
 
   const milestones = [
     { year: '2020', event: 'ZingCab founded in Kolkata' },
-    { year: '2021', event: 'Expanded to 50+ cities across West Bengal' },
-    { year: '2022', event: 'Reached 25,000 happy customers' },
+    { year: '2021', event: 'Expanded to 50+ destinations across West Bengal' },
+    { year: '2022', event: 'Reached 1,000+ happy customers' },
     { year: '2023', event: 'Introduced premium SUV and Tempo Traveller services' },
-    { year: '2024', event: 'Serving 500+ cities with 1000+ verified drivers' }
+    { year: '2024', event: 'Serving 50+ destinations in West Bengal with 75+ verified drivers' }
   ];
 
   return (
@@ -62,15 +62,15 @@ const About = () => {
             <div className="bg-blue-50 p-8 rounded-2xl">
               <div className="grid grid-cols-2 gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-2">50,000+</div>
+                  <div className="text-3xl font-bold text-blue-600 mb-2">2,500+</div>
                   <div className="text-sm text-gray-600">Happy Customers</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-2">500+</div>
-                  <div className="text-sm text-gray-600">Cities Covered</div>
+                  <div className="text-3xl font-bold text-blue-600 mb-2">50+</div>
+                  <div className="text-sm text-gray-600">Destinations in West Bengal</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-2">1000+</div>
+                  <div className="text-3xl font-bold text-blue-600 mb-2">75+</div>
                   <div className="text-sm text-gray-600">Verified Drivers</div>
                 </div>
                 <div className="text-center">
@@ -185,7 +185,7 @@ const About = () => {
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4">Join Thousands of Satisfied Customers</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4">Join Our Growing Community of Satisfied Customers</h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
             Experience the ZingCab difference - safe, reliable, and affordable intercity travel
           </p>

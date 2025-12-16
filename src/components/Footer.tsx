@@ -17,8 +17,8 @@ const Footer = () => {
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <Link to="/" className="flex items-center space-x-2">
-                <img src="/zingcablogo.png" alt="ZingCab" className="h-8 w-8" />
+              <Link to="/" className="flex items-center space-x-2" aria-label="ZingCab Home">
+                <img src="/zingcablogo.png" alt="ZingCab Logo" className="h-8 w-8" width="32" height="32" />
               <span className="text-2xl font-bold">ZingCab</span>
               </Link>
             </div>
@@ -26,14 +26,14 @@ const Footer = () => {
               Your trusted partner for comfortable and reliable intercity cab services across West Bengal and beyond.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
-                <Facebook className="h-5 w-5" />
+              <a href="#" aria-label="Visit ZingCab on Facebook" className="text-gray-400 hover:text-blue-400 transition-colors">
+                <Facebook className="h-5 w-5" aria-hidden="true" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
-                <Twitter className="h-5 w-5" />
+              <a href="#" aria-label="Visit ZingCab on Twitter" className="text-gray-400 hover:text-blue-400 transition-colors">
+                <Twitter className="h-5 w-5" aria-hidden="true" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
-                <Instagram className="h-5 w-5" />
+              <a href="#" aria-label="Visit ZingCab on Instagram" className="text-gray-400 hover:text-blue-400 transition-colors">
+                <Instagram className="h-5 w-5" aria-hidden="true" />
               </a>
             </div>
           </div>

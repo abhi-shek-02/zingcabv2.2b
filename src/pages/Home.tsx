@@ -10,7 +10,6 @@ import {
   CheckCircle, 
   Phone,
   MessageCircle,
-  Award,
   MapPin,
   Car,
   Plane
@@ -26,9 +25,9 @@ const Stat = ({ number, label, icon: Icon }: { number: string; label: string; ic
   const parsedNumber = parseFloat(number.replace(/,/g, ''));
 
   return (
-    <div ref={ref} className="bg-blue-700 p-6 rounded-2xl text-center shadow-lg transform hover:scale-105 transition-transform duration-300">
+      <div ref={ref} className="bg-blue-700 p-6 rounded-2xl text-center shadow-lg transform hover:scale-105 transition-transform duration-300">
       <div className="text-blue-200 mb-2">
-        <Icon className="h-10 w-10 mx-auto" />
+        <Icon className="h-10 w-10 mx-auto" aria-hidden="true" />
       </div>
       <div className="text-4xl lg:text-5xl font-bold mb-2">
         {inView ? <CountUp end={parsedNumber} duration={2.5} separator="," decimals={number.includes('.') ? 1 : 0} /> : '0'}
@@ -89,9 +88,9 @@ const Home = () => {
   ];
 
   const stats = [
-    { number: '50,000+', label: 'Happy Customers', icon: Users },
-    { number: '500+', label: 'Cities Covered', icon: MapPin },
-    { number: '1000+', label: 'Verified Drivers', icon: Shield },
+    { number: '2,500+', label: 'Happy Customers', icon: Users },
+    { number: '50+', label: 'Destinations in West Bengal', icon: MapPin },
+    { number: '75+', label: 'Verified Drivers', icon: Shield },
     { number: '4.8/5', label: 'Customer Rating', icon: Star }
   ];
 
@@ -112,22 +111,22 @@ const Home = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               {/* Mobile view - only show Verified Drivers */}
               <div className="flex items-center space-x-2 text-blue-200 sm:hidden">
-                <CheckCircle className="h-5 w-5" />
+                <CheckCircle className="h-5 w-5" aria-hidden="true" />
                 <span>Verified Drivers</span>
               </div>
               
               {/* Desktop view - show all features */}
               <div className="hidden sm:flex sm:flex-col sm:space-y-2 lg:flex-row lg:space-y-0 lg:space-x-4">
                 <div className="flex items-center space-x-2 text-blue-200">
-                  <CheckCircle className="h-5 w-5" />
+                  <CheckCircle className="h-5 w-5" aria-hidden="true" />
                   <span>Verified Drivers</span>
                 </div>
                 <div className="flex items-center space-x-2 text-blue-200">
-                  <CheckCircle className="h-5 w-5" />
+                  <CheckCircle className="h-5 w-5" aria-hidden="true" />
                   <span>24/7 Support</span>
                 </div>
                 <div className="flex items-center space-x-2 text-blue-200">
-                  <CheckCircle className="h-5 w-5" />
+                  <CheckCircle className="h-5 w-5" aria-hidden="true" />
                   <span>Fair Pricing</span>
                 </div>
               </div>
@@ -159,7 +158,7 @@ const Home = () => {
               <div key={index} className="text-center group">
                 <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1">
                   <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
-                    <feature.icon className="h-8 w-8 text-blue-600" />
+                    <feature.icon className="h-8 w-8 text-blue-600" aria-hidden="true" />
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">{feature.title}</h3>
                   <p className="text-gray-600 leading-relaxed">{feature.description}</p>
@@ -195,7 +194,7 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border">
               <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
-                <MapPin className="h-8 w-8 text-green-600" />
+                <MapPin className="h-8 w-8 text-green-600" aria-hidden="true" />
               </div>
               <h3 className="text-2xl font-semibold text-gray-900 mb-4">One Way Trip</h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
@@ -204,13 +203,14 @@ const Home = () => {
               <Link 
                 to="/services" 
                 className="text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+                aria-label="Learn more about One Way Trip service"
               >
                 Learn More →
               </Link>
             </div>
             <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border">
               <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
-                <Car className="h-8 w-8 text-purple-600" />
+                <Car className="h-8 w-8 text-purple-600" aria-hidden="true" />
               </div>
               <h3 className="text-2xl font-semibold text-gray-900 mb-4">Round Trip</h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
@@ -219,13 +219,14 @@ const Home = () => {
               <Link 
                 to="/services" 
                 className="text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+                aria-label="Learn more about Round Trip service"
               >
                 Learn More →
               </Link>
             </div>
             <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border">
               <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
-                <Clock className="h-8 w-8 text-orange-600" />
+                <Clock className="h-8 w-8 text-orange-600" aria-hidden="true" />
               </div>
               <h3 className="text-2xl font-semibold text-gray-900 mb-4">Local Rental</h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
@@ -234,13 +235,14 @@ const Home = () => {
               <Link 
                 to="/services" 
                 className="text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+                aria-label="Learn more about Local Rental service"
               >
                 Learn More →
               </Link>
             </div>
             <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border">
               <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
-                <Plane className="h-8 w-8 text-blue-600" />
+                <Plane className="h-8 w-8 text-blue-600" aria-hidden="true" />
               </div>
               <h3 className="text-2xl font-semibold text-gray-900 mb-4">Airport Transfer</h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
@@ -249,6 +251,7 @@ const Home = () => {
               <Link 
                 to="/services" 
                 className="text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+                aria-label="Learn more about Airport Transfer service"
               >
                 Learn More →
               </Link>
@@ -272,8 +275,9 @@ const Home = () => {
             {testimonials.map((testimonial, index) => (
               <div key={index} className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center mb-4">
+                  <span className="sr-only">{testimonial.rating} out of 5 stars</span>
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" aria-hidden="true" />
                   ))}
                 </div>
                 <p className="text-gray-600 mb-6 leading-relaxed italic">
@@ -302,16 +306,18 @@ const Home = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a
               href="https://wa.me/917003371343"
-              className="bg-green-500 text-white px-8 py-4 rounded-lg font-semibold hover:bg-green-600 transition-colors duration-200 flex items-center space-x-2"
+              aria-label="Book via WhatsApp"
+              className="bg-green-700 text-white px-8 py-4 rounded-lg font-semibold hover:bg-green-800 transition-colors duration-200 flex items-center space-x-2"
             >
-              <MessageCircle className="h-5 w-5" />
+              <MessageCircle className="h-5 w-5" aria-hidden="true" />
               <span>WhatsApp Booking</span>
             </a>
             <a
               href="tel:9903042200"
+              aria-label="Call ZingCab at 9903042200"
               className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 flex items-center space-x-2"
             >
-              <Phone className="h-5 w-5" />
+              <Phone className="h-5 w-5" aria-hidden="true" />
               <span>Call Now</span>
             </a>
           </div>

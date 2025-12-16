@@ -21,8 +21,8 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <img src="/zingcablogo.png" alt="ZingCab" className="h-12" />
+          <Link to="/" className="flex items-center space-x-2" aria-label="ZingCab Home">
+            <img src="/zingcablogo.png" alt="ZingCab Logo" className="h-12 w-auto" width="48" height="48" />
             <span className="text-2xl font-bold" style={{color: '#0A1D3B'}}>ZingCab</span>
           </Link>
 
@@ -47,9 +47,10 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             <a
               href="tel:9903042200"
+              aria-label="Call ZingCab at 9903042200"
               className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors"
             >
-              <Phone className="h-4 w-4" />
+              <Phone className="h-4 w-4" aria-hidden="true" />
               <span className="font-medium">9903042200</span>
             </a>
             <Link
@@ -63,9 +64,11 @@ const Header = () => {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
             className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
           >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isMenuOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
           </button>
         </div>
 
@@ -90,9 +93,10 @@ const Header = () => {
               <div className="pt-4 border-t border-gray-100 mt-4">
                 <a
                   href="tel:9903042200"
+                  aria-label="Call ZingCab at 9903042200"
                   className="flex items-center space-x-2 px-3 py-2 text-blue-600 font-medium"
                 >
-                  <Phone className="h-4 w-4" />
+                  <Phone className="h-4 w-4" aria-hidden="true" />
                   <span>9903042200</span>
                 </a>
               </div>

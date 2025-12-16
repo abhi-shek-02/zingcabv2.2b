@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDebounce } from 'use-debounce';
-import { MapPin, Calendar, Car, ArrowRight, Clock, Phone, MessageCircle, AlertCircle, CheckCircle, Info, X } from 'lucide-react';
+import { MapPin, Calendar, Car, ArrowRight, Clock, Phone, MessageCircle, AlertCircle, CheckCircle, X } from 'lucide-react';
 import Modal from './Modal';
 import { getDistanceInKm } from '../lib/olamaps';
 
@@ -122,8 +122,7 @@ const BookingForm = () => {
     { id: 'hatchback', name: 'Hatchback', seats: '4 Seater', example: 'Wagon R' },
     { id: 'sedan', name: 'Sedan', seats: '4 Seater', example: 'Maruti Dzire' },
     { id: 'suv', name: 'SUV', seats: '6-7 Seater', example: 'Ertiga' },
-    { id: 'crysta', name: 'Crysta', seats: '7 Seater', example: 'Toyota Innova Crysta' },
-    { id: 'scorpio', name: 'Scorpio', seats: '7 Seater', example: 'Mahindra Scorpio' }
+    { id: 'crysta', name: 'Crysta', seats: '7 Seater', example: 'Toyota Innova Crysta' }
   ];
 
   const popularRoutes = [
@@ -744,9 +743,9 @@ const BookingForm = () => {
                 <button 
                   onClick={resetForm} 
                   className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-                  aria-label="Close"
+                  aria-label="Close booking confirmation"
                 >
-                  <X className="h-6 w-6" />
+                  <X className="h-6 w-6" aria-hidden="true" />
                 </button>
                 <div className="p-6 pt-12 text-center">
                     <CheckCircle className="h-16 w-16 mb-4 text-green-500 mx-auto" />
@@ -773,21 +772,23 @@ const BookingForm = () => {
 
       <div className="mb-6 text-center">
          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-           <a
-             href="https://wa.me/917003371343"
-             target="_blank" rel="noopener noreferrer"
-             className="inline-flex items-center justify-center space-x-2 bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors duration-200"
-           >
-             <MessageCircle className="h-5 w-5" />
-             <span>Quick WhatsApp Booking</span>
-           </a>
-           <a
-             href="tel:9903042200"
-             className="inline-flex items-center justify-center space-x-2 bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-200"
-           >
-             <Phone className="h-5 w-5" />
-             <span>Quick Phone Booking</span>
-           </a>
+          <a
+            href="https://wa.me/917003371343"
+            target="_blank" rel="noopener noreferrer"
+            aria-label="Book via WhatsApp"
+            className="inline-flex items-center justify-center space-x-2 bg-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-800 transition-colors duration-200"
+          >
+            <MessageCircle className="h-5 w-5" aria-hidden="true" />
+            <span>Quick WhatsApp Booking</span>
+          </a>
+          <a
+            href="tel:9903042200"
+            aria-label="Book via phone call"
+            className="inline-flex items-center justify-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200"
+          >
+            <Phone className="h-5 w-5" aria-hidden="true" />
+            <span>Quick Phone Booking</span>
+          </a>
          </div>
       </div>
 
@@ -804,7 +805,7 @@ const BookingForm = () => {
             onClick={() => handleTripTypeChange(type.id)}
           >
             <div className="text-center">
-              <h4 className="font-semibold text-gray-900 text-sm mb-1">{type.name}</h4>
+              <div className="font-semibold text-gray-900 text-sm mb-1">{type.name}</div>
               <p className="text-xs text-gray-600">{type.description}</p>
             </div>
           </div>
@@ -815,11 +816,12 @@ const BookingForm = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {/* Phone Number */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
           <div className="relative">
-            <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
             <input
               type="tel"
+              id="phone"
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
@@ -833,13 +835,14 @@ const BookingForm = () => {
 
         {/* From City / Pickup Location */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="fromCity" className="block text-sm font-medium text-gray-700 mb-2">
             {formData.tripType === 'rental' ? 'Pickup Location' : 'From City'}
           </label>
           <div className="relative">
-            <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
             <input
               type="text"
+              id="fromCity"
               name="fromCity"
               value={formData.fromCity}
               onChange={handleInputChange}
@@ -866,11 +869,12 @@ const BookingForm = () => {
         {/* To City (hidden for local rental) */}
         {formData.tripType !== 'rental' && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">To City</label>
+            <label htmlFor="toCity" className="block text-sm font-medium text-gray-700 mb-2">To City</label>
             <div className="relative">
-              <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
               <input
                 type="text"
+                id="toCity"
                 name="toCity"
                 value={formData.toCity}
                 onChange={handleInputChange}
@@ -898,11 +902,13 @@ const BookingForm = () => {
         {/* Distance Disabled Input (now in grid, no col-span/flex) */}
         {distance && formData.tripType !== 'rental' && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Distance (km)</label>
+            <label htmlFor="distance" className="block text-sm font-medium text-gray-700 mb-2">Distance (km)</label>
             <input
               type="text"
+              id="distance"
               value={`${distance} km`}
               disabled
+              aria-label="Calculated distance"
               className="w-full px-4 py-3 border border-blue-300 rounded-lg bg-blue-50 text-blue-900 font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
@@ -910,13 +916,14 @@ const BookingForm = () => {
 
         {/* Date */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
             {formData.tripType === 'rental' ? 'Pickup Date' : 'Travel Date'}
           </label>
           <div className="relative">
-            <Calendar className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <Calendar className="absolute left-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
             <input
               type="date"
+              id="date"
               name="date"
               value={formData.date}
               onChange={handleInputChange}
@@ -930,11 +937,12 @@ const BookingForm = () => {
         {/* Return Date (only for round trip) */}
         {formData.tripType === 'roundtrip' && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Return Date</label>
+            <label htmlFor="returnDate" className="block text-sm font-medium text-gray-700 mb-2">Return Date</label>
             <div className="relative">
-              <Calendar className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Calendar className="absolute left-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
               <input
                 type="date"
+                id="returnDate"
                 name="returnDate"
                 value={formData.returnDate}
                 onChange={handleInputChange}
@@ -948,11 +956,12 @@ const BookingForm = () => {
 
         {/* Pickup Time */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Pickup Time</label>
+          <label htmlFor="pickupTime" className="block text-sm font-medium text-gray-700 mb-2">Pickup Time</label>
           <div className="relative">
-            <Clock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <Clock className="absolute left-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
             <input
               type="time"
+              id="pickupTime"
               name="pickupTime"
               value={formData.pickupTime}
               onChange={handleInputChange}
@@ -964,10 +973,11 @@ const BookingForm = () => {
         {/* Rental Duration (only for local rental) */}
         {formData.tripType === 'rental' && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+            <label htmlFor="rentalDuration" className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
             <div className="relative">
-              <Clock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Clock className="absolute left-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
               <select
+                id="rentalDuration"
                 name="rentalDuration"
                 value={formData.rentalDuration}
                 onChange={handleInputChange}
@@ -981,10 +991,11 @@ const BookingForm = () => {
 
         {/* Car Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Select a Car</label>
+          <label htmlFor="carType" className="block text-sm font-medium text-gray-700 mb-2">Select a Car</label>
           <div className="relative">
-            <Car className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <Car className="absolute left-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
             <select
+              id="carType"
               name="carType"
               value={formData.carType}
               onChange={handleInputChange}
@@ -1001,7 +1012,7 @@ const BookingForm = () => {
       {/* Popular Routes */}
       {formData.tripType !== 'rental' && (
         <div className="mb-6">
-          <h4 className="text-sm font-semibold text-gray-600 mb-2">Popular Routes:</h4>
+          <h2 className="text-sm font-semibold text-gray-600 mb-2">Popular Routes:</h2>
           <div className="flex flex-wrap gap-2">
             {popularRoutes.map(route => (
               <button
@@ -1045,7 +1056,7 @@ const BookingForm = () => {
             {/* NEW: Display Zone Information */}
             {fareData.selected_car.zone_info && (
               <div className="mt-4 p-3 bg-white rounded-lg border">
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Route Information</h4>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Route Information</h3>
                 <div className="flex justify-between items-center text-sm">
                   <div className="flex items-center">
                     <span className="text-green-600 font-medium">From:</span>
@@ -1066,7 +1077,7 @@ const BookingForm = () => {
 
             {/* NEW: Detailed Fare Breakdown */}
             <div className="mt-4 p-4 bg-white rounded-lg border">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Fare Breakdown</h4>
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Fare Breakdown</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Base Fare:</span>
@@ -1112,7 +1123,7 @@ const BookingForm = () => {
       {/* NEW: Service Details Display */}
       {fareData.service_details && (
         <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">Service Information</h4>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">Service Information</h3>
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <span className="text-gray-600">Distance:</span>
@@ -1152,7 +1163,7 @@ const BookingForm = () => {
                   className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${formData.carType === car ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}
                   onClick={() => handleCarCardSelect(car)}
                 >
-                  <h4 className="font-bold text-gray-900 text-sm">{carInfo.name}</h4>
+                  <div className="font-bold text-gray-900 text-sm">{carInfo.name}</div>
                   <p className="text-xs text-gray-600">{carInfo.seats}, {carInfo.example}</p>
                   <p className="text-lg font-bold text-gray-800 mt-2">₹{fare.estimated_fare.toLocaleString('en-IN')}</p>
                   <p className="text-xs text-gray-500">Up to {fare.km_limit}km</p>

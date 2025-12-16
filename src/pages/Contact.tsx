@@ -330,7 +330,7 @@ const Contact = () => {
                 <div className="space-y-3">
                   <a
                     href="https://wa.me/917003371343"
-                    className="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors flex items-center justify-center space-x-2"
+                    className="w-full bg-green-700 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-800 transition-colors flex items-center justify-center space-x-2"
                   >
                     <MessageCircle className="h-5 w-5" />
                     <span>WhatsApp Booking</span>
