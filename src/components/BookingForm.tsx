@@ -1037,43 +1037,6 @@ const BookingForm = () => {
               ₹{fareData.selected_car.estimated_fare.toLocaleString('en-IN')}
             </p>
             <p className="text-sm text-gray-600 mt-1">for {formData.carType} (up to {fareData.selected_car.km_limit}km)</p>
-            
-            {/* NEW: Display Pricing Type */}
-            <div className="mt-3 flex justify-center">
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                fareData.selected_car.pricing_type === 'fixed_route' 
-                  ? 'bg-green-100 text-green-800' 
-                  : fareData.selected_car.pricing_type === 'zone_based'
-                  ? 'bg-blue-100 text-blue-800'
-                  : 'bg-gray-100 text-gray-800'
-              }`}>
-                {fareData.selected_car.pricing_type === 'fixed_route' ? '🎯 Fixed Route' :
-                 fareData.selected_car.pricing_type === 'zone_based' ? '🗺️ Zone-Based' :
-                 '🧮 Standard Pricing'}
-              </span>
-            </div>
-
-            {/* NEW: Display Zone Information */}
-            {fareData.selected_car.zone_info && (
-              <div className="mt-4 p-3 bg-white rounded-lg border">
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">Route Information</h3>
-                <div className="flex justify-between items-center text-sm">
-                  <div className="flex items-center">
-                    <span className="text-green-600 font-medium">From:</span>
-                    <span className="ml-2 text-gray-800">
-                      {fareData.selected_car.zone_info.pickup_zone || 'Outside zones'}
-                    </span>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-gray-400" />
-                  <div className="flex items-center">
-                    <span className="text-blue-600 font-medium">To:</span>
-                    <span className="ml-2 text-gray-800">
-                      {fareData.selected_car.zone_info.drop_zone || 'Outside zones'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* NEW: Detailed Fare Breakdown */}
             <div className="mt-4 p-4 bg-white rounded-lg border">
@@ -1128,10 +1091,6 @@ const BookingForm = () => {
             <div>
               <span className="text-gray-600">Distance:</span>
               <span className="ml-2 font-medium">{fareData.service_details.distance}km</span>
-            </div>
-            <div>
-              <span className="text-gray-600">Pricing Logic:</span>
-              <span className="ml-2 font-medium capitalize">{fareData.service_details.pricing_logic.replace('_', ' ')}</span>
             </div>
             {fareData.service_details.night_charge_applied && (
               <div className="col-span-2">
