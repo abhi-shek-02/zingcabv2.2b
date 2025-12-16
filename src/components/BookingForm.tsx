@@ -384,7 +384,7 @@ const BookingForm = () => {
       
       console.log('Fare calculation payload with coordinates:', payload);
       
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/fare/estimate`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/fare/estimate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -462,7 +462,7 @@ const BookingForm = () => {
 
       console.log('Booking payload with coordinates:', bookingPayload);
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/booking`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/booking`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bookingPayload)
@@ -684,7 +684,7 @@ const BookingForm = () => {
       
       console.log('Fare estimation payload with coordinates:', payload);
       
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/fare/estimate`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/fare/estimate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
