@@ -1120,30 +1120,6 @@ const BookingForm = () => {
           </div>
         </div>
       )}
-      {/* Other Available Cars section - Hidden per user request */}
-      {false && fareData.all_car_fares && (
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-center text-gray-800 mb-4">Other Available Cars</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {Object.entries(fareData.all_car_fares).map(([car, fare]) => {
-              const carInfo = carTypes.find(c => c.id === car);
-              if (!carInfo) return null;
-              return (
-                <div
-                  key={car}
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${formData.carType === car ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}
-                  onClick={() => handleCarCardSelect(car)}
-                >
-                  <div className="font-bold text-gray-900 text-sm">{carInfo.name}</div>
-                  <p className="text-xs text-gray-600">{carInfo.seats}, {carInfo.example}</p>
-                  <p className="text-lg font-bold text-gray-800 mt-2">₹{(fare?.estimated_fare || 0).toLocaleString('en-IN')}</p>
-                  <p className="text-xs text-gray-500">Up to {fare?.km_limit || 0}km</p>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
 
       {/* Action Buttons */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
