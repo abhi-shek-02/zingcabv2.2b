@@ -1120,7 +1120,8 @@ const BookingForm = () => {
           </div>
         </div>
       )}
-      {fareData.all_car_fares && (
+      {/* Other Available Cars section - Hidden per user request */}
+      {false && fareData.all_car_fares && (
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-center text-gray-800 mb-4">Other Available Cars</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
