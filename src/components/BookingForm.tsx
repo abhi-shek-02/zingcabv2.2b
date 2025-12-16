@@ -1034,51 +1034,62 @@ const BookingForm = () => {
           <h3 className="text-xl font-bold text-center text-gray-900 mb-4">Fare Estimate</h3>
           <div className="text-center mb-6">
             <p className="text-4xl font-extrabold text-blue-600">
-              ₹{fareData.selected_car.estimated_fare.toLocaleString('en-IN')}
+              ₹{(fareData.selected_car.estimated_fare || 0).toLocaleString('en-IN')}
             </p>
-            <p className="text-sm text-gray-600 mt-1">for {formData.carType} (up to {fareData.selected_car.km_limit}km)</p>
+            <p className="text-sm text-gray-600 mt-1">for {formData.carType} (up to {fareData.selected_car.km_limit || 0}km)</p>
 
-            {/* NEW: Detailed Fare Breakdown */}
-            <div className="mt-4 p-4 bg-white rounded-lg border">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">Fare Breakdown</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Base Fare:</span>
-                  <span className="font-medium">₹{fareData.selected_car.breakdown.base_fare.toLocaleString('en-IN')}</span>
-                </div>
-                
-                {fareData.selected_car.breakdown.night_charge > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Night Charge:</span>
-                    <span className="font-medium text-orange-600">₹{fareData.selected_car.breakdown.night_charge.toLocaleString('en-IN')}</span>
-                  </div>
-                )}
-                
-                {fareData.selected_car.breakdown.festive_charge > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Festive Charge:</span>
-                    <span className="font-medium text-purple-600">₹{fareData.selected_car.breakdown.festive_charge.toLocaleString('en-IN')}</span>
-                  </div>
-                )}
-                
-                <div className="flex justify-between">
-                  <span className="text-gray-600">GST (18%):</span>
-                  <span className="font-medium">₹{fareData.selected_car.breakdown.gst.toLocaleString('en-IN')}</span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Driver Allowance:</span>
-                  <span className="font-medium">₹{fareData.selected_car.breakdown.driver_allowance.toLocaleString('en-IN')}</span>
-                </div>
-                
-                <hr className="my-2" />
-                
-                <div className="flex justify-between font-bold text-lg">
-                  <span className="text-gray-800">Total Amount:</span>
-                  <span className="text-blue-600">₹{fareData.selected_car.breakdown.total.toLocaleString('en-IN')}</span>
+            {/* NEW: Detailed Fare Breakdown - Only show if breakdown data exists */}
+            {fareData.selected_car.breakdown && Object.keys(fareData.selected_car.breakdown).length > 0 && (
+              <div className="mt-4 p-4 bg-white rounded-lg border">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">Fare Breakdown</h3>
+                <div className="space-y-2 text-sm">
+                  {fareData.selected_car.breakdown.base_fare !== undefined && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Base Fare:</span>
+                      <span className="font-medium">₹{(fareData.selected_car.breakdown.base_fare || 0).toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                  
+                  {fareData.selected_car.breakdown.night_charge !== undefined && fareData.selected_car.breakdown.night_charge > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Night Charge:</span>
+                      <span className="font-medium text-orange-600">₹{(fareData.selected_car.breakdown.night_charge || 0).toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                  
+                  {fareData.selected_car.breakdown.festive_charge !== undefined && fareData.selected_car.breakdown.festive_charge > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Festive Charge:</span>
+                      <span className="font-medium text-purple-600">₹{(fareData.selected_car.breakdown.festive_charge || 0).toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                  
+                  {fareData.selected_car.breakdown.gst !== undefined && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">GST (18%):</span>
+                      <span className="font-medium">₹{(fareData.selected_car.breakdown.gst || 0).toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                  
+                  {fareData.selected_car.breakdown.driver_allowance !== undefined && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Driver Allowance:</span>
+                      <span className="font-medium">₹{(fareData.selected_car.breakdown.driver_allowance || 0).toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                  
+                  {fareData.selected_car.breakdown.total !== undefined && (
+                    <>
+                      <hr className="my-2" />
+                      <div className="flex justify-between font-bold text-lg">
+                        <span className="text-gray-800">Total Amount:</span>
+                        <span className="text-blue-600">₹{(fareData.selected_car.breakdown.total || 0).toLocaleString('en-IN')}</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}
@@ -1124,8 +1135,8 @@ const BookingForm = () => {
                 >
                   <div className="font-bold text-gray-900 text-sm">{carInfo.name}</div>
                   <p className="text-xs text-gray-600">{carInfo.seats}, {carInfo.example}</p>
-                  <p className="text-lg font-bold text-gray-800 mt-2">₹{fare.estimated_fare.toLocaleString('en-IN')}</p>
-                  <p className="text-xs text-gray-500">Up to {fare.km_limit}km</p>
+                  <p className="text-lg font-bold text-gray-800 mt-2">₹{(fare?.estimated_fare || 0).toLocaleString('en-IN')}</p>
+                  <p className="text-xs text-gray-500">Up to {fare?.km_limit || 0}km</p>
                 </div>
               )
             })}
