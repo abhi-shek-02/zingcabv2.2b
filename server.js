@@ -12,9 +12,8 @@ require('dotenv').config({
 
 // Import routes
 const fareRoutes = require('./routes/fare.cjs');
-// Add other routes as needed
-// const bookingRoutes = require('./routes/booking.cjs');
-// const contactRoutes = require('./routes/contact.cjs');
+const bookingRoutes = require('./routes/booking.cjs');
+const contactRoutes = require('./routes/contact.cjs');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -60,9 +59,8 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/fare', fareRoutes);
-// Add other routes as needed
-// app.use('/api/booking', bookingRoutes);
-// app.use('/api/contact', contactRoutes);
+app.use('/api/booking', bookingRoutes);
+app.use('/api/contact', contactRoutes);
 
 // 404 handler (catch-all for unmatched routes)
 app.use((req, res) => {
