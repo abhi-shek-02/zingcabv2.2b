@@ -1,0 +1,23 @@
+# Cache headers for static assets
+# This file is for Netlify deployment
+# For other platforms, configure cache headers in their respective settings
+
+# Cache images for 1 year
+/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache Cloudinary assets (handled by Cloudinary CDN, but we can add headers)
+# Note: Cloudinary already handles caching, but this ensures browser caching
+
+# Cache service worker
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Cache HTML with shorter duration
+/*.html
+  Cache-Control: public, max-age=3600
+
+# Cache JS and CSS with long duration
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
