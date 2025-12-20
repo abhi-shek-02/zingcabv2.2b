@@ -1,6 +1,6 @@
 // Service Worker for caching images and videos
 const CACHE_NAME = 'zingcab-assets-v1';
-const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
+const CACHE_DURATION = 180 * 24 * 60 * 60 * 1000; // 6 months (180 days)
 
 // Assets to cache immediately
 const ASSETS_TO_CACHE = [
@@ -80,4 +80,5 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
+
 

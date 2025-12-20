@@ -3,6 +3,8 @@ import { useDebounce } from 'use-debounce';
 import { MapPin, Calendar, Car, ArrowRight, Clock, Phone, MessageCircle, AlertCircle, CheckCircle, X } from 'lucide-react';
 import Modal from './Modal';
 import { getDistanceInKm } from '../lib/olamaps';
+import { Autocomplete, TextField, CircularProgress } from '@mui/material';
+import { LocationOn } from '@mui/icons-material';
 
 interface FareBreakdown {
   base_fare: number;
@@ -169,6 +171,7 @@ const BookingForm = () => {
       return;
     }
     const fetchSuggestions = async () => {
+      setIsPickupLoading(true);
       try {
         const apiKey = import.meta.env.VITE_OLAMAPS_API_KEY;
         if (!apiKey) {
@@ -183,6 +186,8 @@ const BookingForm = () => {
       } catch (error) {
         console.error("Failed to fetch autocomplete suggestions:", error);
         setFromSuggestions([]);
+      } finally {
+        setIsPickupLoading(false);
       }
     };
 
@@ -190,6 +195,7 @@ const BookingForm = () => {
       fetchSuggestions();
     } else {
       setFromSuggestions([]);
+      setIsPickupLoading(false);
     }
   }, [debouncedFromCity]);
 
@@ -199,6 +205,7 @@ const BookingForm = () => {
       return;
     }
     const fetchSuggestions = async () => {
+      setIsDropoffLoading(true);
       try {
         const apiKey = import.meta.env.VITE_OLAMAPS_API_KEY;
         if (!apiKey) {
@@ -213,6 +220,8 @@ const BookingForm = () => {
       } catch (error) {
         console.error("Failed to fetch autocomplete suggestions:", error);
         setToSuggestions([]);
+      } finally {
+        setIsDropoffLoading(false);
       }
     };
     
@@ -220,6 +229,7 @@ const BookingForm = () => {
       fetchSuggestions();
     } else {
       setToSuggestions([]);
+      setIsDropoffLoading(false);
     }
   }, [debouncedToCity]);
 
@@ -767,6 +777,7 @@ const BookingForm = () => {
       
       <div className="mb-6 text-center">
          <h2 className="text-2xl font-bold text-gray-900 mb-2">Book Your Ride</h2>
+         <p className="text-gray-600">Driven by Trust, Comfort in Every Mile, Through the Heart of Bengal</p>
       </div>
 
       <div className="mb-6 text-center">
@@ -832,69 +843,153 @@ const BookingForm = () => {
           {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
         </div>
 
-        {/* From City / Pickup Location */}
+        {/* From City / Pickup Location - MUI Autocomplete */}
         <div>
           <label htmlFor="fromCity" className="block text-sm font-medium text-gray-700 mb-2">
             {formData.tripType === 'rental' ? 'Pickup Location' : 'From City'}
           </label>
-          <div className="relative">
-            <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
-            <input
-              type="text"
-              id="fromCity"
-              name="fromCity"
-              value={formData.fromCity}
-              onChange={handleInputChange}
-              placeholder="Kolkata"
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-             {fromSuggestions.length > 0 && (
-              <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-auto shadow-lg">
-                {fromSuggestions.map((suggestion, index) => (
-                  <li
-                    key={index}
-                    onClick={() => handleSuggestionClick('fromCity', suggestion)}
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                  >
-                    {suggestion.description}
-                  </li>
-                ))}
-              </ul>
+          <Autocomplete
+            freeSolo
+            options={fromSuggestions}
+            getOptionLabel={(option) => 
+              typeof option === 'string' ? option : option.description || ''
+            }
+            value={formData.fromCity}
+            onInputChange={(event, newInputValue) => {
+              setFormData(prev => ({ ...prev, fromCity: newInputValue }));
+              setFareData({ selected_car: null, all_car_fares: null });
+              if (newInputValue === '') setFromCoords(null);
+            }}
+            onChange={(event, newValue) => {
+              if (newValue && typeof newValue !== 'string') {
+                handleSuggestionClick('fromCity', newValue);
+              }
+            }}
+            loading={isPickupLoading}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder="Kolkata"
+                  error={!!errors.fromCity}
+                  helperText={errors.fromCity}
+                  InputProps={{
+                    ...params.InputProps,
+                    startAdornment: (
+                      <>
+                        <LocationOn sx={{ color: '#9ca3af', mr: 1, fontSize: 20 }} />
+                        {params.InputProps.startAdornment}
+                      </>
+                    ),
+                    endAdornment: (
+                      <>
+                        {isPickupLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: errors.fromCity ? '#ef4444' : '#d1d5db',
+                        borderRadius: '8px',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: errors.fromCity ? '#ef4444' : '#9ca3af',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#3b82f6',
+                        borderWidth: '2px',
+                      },
+                    },
+                  }}
+                />
+              )}
+            renderOption={(props, option) => (
+              <li {...props} key={option.place_id || option.description}>
+                <LocationOn className="mr-2 text-gray-400" style={{ marginRight: 8, fontSize: 20 }} />
+                {option.description}
+              </li>
             )}
-          </div>
-          {errors.fromCity && <p className="text-red-500 text-xs mt-1">{errors.fromCity}</p>}
+            sx={{
+              '& .MuiAutocomplete-popper': {
+                zIndex: 1300,
+              },
+            }}
+          />
         </div>
         
-        {/* To City (hidden for local rental) */}
+        {/* To City - MUI Autocomplete (hidden for local rental) */}
         {formData.tripType !== 'rental' && (
           <div>
             <label htmlFor="toCity" className="block text-sm font-medium text-gray-700 mb-2">To City</label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
-              <input
-                type="text"
-                id="toCity"
-                name="toCity"
-                value={formData.toCity}
-                onChange={handleInputChange}
-                placeholder="Durgapur"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              {toSuggestions.length > 0 && (
-                <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-auto shadow-lg">
-                  {toSuggestions.map((suggestion, index) => (
-                    <li
-                      key={index}
-                      onClick={() => handleSuggestionClick('toCity', suggestion)}
-                      className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                    >
-                      {suggestion.description}
-                    </li>
-                  ))}
-                </ul>
+            <Autocomplete
+              freeSolo
+              options={toSuggestions}
+              getOptionLabel={(option) => 
+                typeof option === 'string' ? option : option.description || ''
+              }
+              value={formData.toCity}
+              onInputChange={(event, newInputValue) => {
+                setFormData(prev => ({ ...prev, toCity: newInputValue }));
+                setFareData({ selected_car: null, all_car_fares: null });
+                if (newInputValue === '') setToCoords(null);
+              }}
+              onChange={(event, newValue) => {
+                if (newValue && typeof newValue !== 'string') {
+                  handleSuggestionClick('toCity', newValue);
+                }
+              }}
+              loading={isDropoffLoading}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder="Durgapur"
+                  error={!!errors.toCity}
+                  helperText={errors.toCity}
+                  InputProps={{
+                    ...params.InputProps,
+                    startAdornment: (
+                      <>
+                        <LocationOn sx={{ color: '#9ca3af', mr: 1, fontSize: 20 }} />
+                        {params.InputProps.startAdornment}
+                      </>
+                    ),
+                    endAdornment: (
+                      <>
+                        {isDropoffLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: errors.toCity ? '#ef4444' : '#d1d5db',
+                        borderRadius: '8px',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: errors.toCity ? '#ef4444' : '#9ca3af',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#3b82f6',
+                        borderWidth: '2px',
+                      },
+                    },
+                  }}
+                />
               )}
-            </div>
-            {errors.toCity && <p className="text-red-500 text-xs mt-1">{errors.toCity}</p>}
+              renderOption={(props, option) => (
+                <li {...props} key={option.place_id || option.description} style={{ display: 'flex', alignItems: 'center' }}>
+                  <LocationOn sx={{ color: '#9ca3af', mr: 1, fontSize: 20 }} />
+                  {option.description}
+                </li>
+              )}
+              sx={{
+                '& .MuiAutocomplete-popper': {
+                  zIndex: 1300,
+                },
+              }}
+            />
           </div>
         )}
 

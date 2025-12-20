@@ -138,20 +138,64 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-600 to-blue-800 text-white py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6">Transparent Pricing</h1>
-            <p className="text-xl lg:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed">
+      {/* Hero Section - Netflix Style with Video Background */}
+      <section className="relative h-screen min-h-[600px] lg:min-h-[600px] overflow-hidden -mt-16">
+        {/* Video Background */}
+        <div className="absolute inset-0 w-full h-full">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="w-full h-full object-cover"
+            poster="https://res.cloudinary.com/dglbplg86/image/upload/q_auto,f_auto,w_1920/v1765993153/9cff4c7c-7718-4563-8623-d72697c0a0a9_kmylxl.jpg"
+          >
+            <source src="https://res.cloudinary.com/dglbplg86/video/upload/q_auto,f_mp4/v1766214486/grok-video-48da3c2c-5092-47c9-9c53-27905debceed-5_d3ncof.mp4" type="video/mp4" />
+          </video>
+        </div>
+        
+        {/* Gradient Overlay - Lighter for better video visibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30"></div>
+        
+        {/* Blur Junction at Bottom - Smooth transition to next section */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent via-white/20 to-white/40 backdrop-blur-md z-20"></div>
+        
+        {/* Content - Direct on video without blur container */}
+        <div className="relative z-10 h-full flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            {/* Main Heading - Smaller */}
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 lg:mb-6 leading-tight text-white drop-shadow-2xl">
+              Transparent Pricing
+            </h1>
+            
+            {/* Tagline - Smaller */}
+            <p className="text-lg sm:text-xl lg:text-2xl font-light mb-6 lg:mb-8 text-white/95 drop-shadow-lg tracking-wide">
               Fixed rates for popular routes with no hidden charges. All taxes and tolls included.
             </p>
+            
+            {/* Feature Pills - Netflix Style with Glassmorphism */}
+            <div className="flex flex-wrap justify-center gap-3 lg:gap-4">
+              <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20 shadow-lg">
+                <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-green-400" aria-hidden="true" />
+                <span className="text-sm lg:text-base font-medium text-white">No Hidden Charges</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20 shadow-lg">
+                <Info className="h-4 w-4 lg:h-5 lg:w-5 text-blue-400" aria-hidden="true" />
+                <span className="text-sm lg:text-base font-medium text-white">All Taxes Included</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20 shadow-lg">
+                <MapPin className="h-4 w-4 lg:h-5 lg:w-5 text-blue-400" aria-hidden="true" />
+                <span className="text-sm lg:text-base font-medium text-white">Fixed Routes</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Popular Routes */}
-      <section className="py-16">
+      <section className="py-16 -mt-32 relative z-30 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Popular Routes & Fares</h2>

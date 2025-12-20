@@ -12,7 +12,19 @@ import {
   MessageCircle,
   MapPin,
   Car,
-  Plane
+  Plane,
+  Wrench,
+  Navigation,
+  Heart,
+  AlertCircle,
+  Eye,
+  Award,
+  GraduationCap,
+  Smile,
+  TrendingUp,
+  Zap,
+  Calendar,
+  User
 } from 'lucide-react';
 import BookingForm from '../components/BookingForm';
 
@@ -196,40 +208,40 @@ const Home = () => {
                     <div className="flex gap-4">
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
                             <Shield className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Verified Drivers</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-blue-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Wrench className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Regular Vehicle Checks</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <Shield className="h-full w-full text-blue-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Navigation className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">GPS Tracking</p>
                         </div>
                       </div>
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-blue-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Heart className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">First Aid Kits</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <Shield className="h-full w-full text-blue-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Phone className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Emergency Support</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-blue-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Eye className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">24/7 Monitoring</p>
                         </div>
@@ -264,34 +276,34 @@ const Home = () => {
                     <div className="flex gap-4">
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-green-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Award className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Licensed & Verified</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-green-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <GraduationCap className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Well Trained</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-green-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <MapPin className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Local Knowledge</p>
                         </div>
                       </div>
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-green-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Smile className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Polite & Courteous</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-green-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Clock className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Years of Experience</p>
                         </div>
@@ -326,34 +338,34 @@ const Home = () => {
                     <div className="flex gap-4">
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-emerald-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <TrendingUp className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Proven Track Record</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-emerald-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Users className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Thousands of Happy Customers</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-emerald-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Clock className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Years of Experience</p>
                         </div>
                       </div>
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-emerald-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <CheckCircle className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Reliable & Consistent</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-emerald-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Star className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">High Customer Ratings</p>
                         </div>
@@ -388,34 +400,34 @@ const Home = () => {
                     <div className="flex gap-4">
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-purple-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Phone className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">24/7 Customer Support</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-purple-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Zap className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Quick Response Time</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-purple-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <User className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Personalized Service</p>
                         </div>
                       </div>
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-purple-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Calendar className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Flexible Booking</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="relative h-4 w-4 lg:h-8 lg:w-8">
-                            <CheckCircle className="h-full w-full text-purple-600" />
+                          <div className="relative h-3 w-3 lg:h-5 lg:w-5">
+                            <Award className="h-full w-full text-blue-600" />
                           </div>
                           <p className="text-xs lg:text-sm text-gray-900 font-normal">Satisfaction Guaranteed</p>
                         </div>

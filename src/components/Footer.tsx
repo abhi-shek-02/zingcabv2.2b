@@ -129,8 +129,11 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-          <p className="text-gray-400 text-sm">
+        <div className="border-t border-gray-800 mt-8 pt-8">
+          <div className="text-center mb-4">
+            <h2 className="text-2xl font-bold text-white mb-2">Book Your Ride</h2>
+          </div>
+          <p className="text-gray-400 text-sm text-center">
             &copy; 2024 ZingCab. All rights reserved. | Designed for reliable intercity travel.
           </p>
         </div>

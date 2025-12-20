@@ -11,6 +11,7 @@ const Services = lazy(() => import('./pages/Services'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Terms = lazy(() => import('./pages/Terms'));
+const CorporateBooking = lazy(() => import('./pages/CorporateBooking'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -34,6 +35,7 @@ const App = () => {
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/corporate-booking" element={<CorporateBooking />} />
             </Routes>
           </Suspense>
         </main>
