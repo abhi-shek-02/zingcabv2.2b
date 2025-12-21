@@ -35,16 +35,31 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // CORS configuration
+const allowedOrigins = [
+  'https://magenta-fairy-a6613c.netlify.app', 
+  'https://zingcab.in',
+  'https://www.zingcab.in'
+];
+
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? [
-        'https://magenta-fairy-a6613c.netlify.app', 
-        'https://zingcab.in',
-        'https://www.zingcab.in',
-        // Vercel admin frontend URLs (wildcard for all Vercel deployments)
-        /^https:\/\/.*\.vercel\.app$/,
-        /^https:\/\/admin-zingcab.*\.vercel\.app$/
-      ] 
+    ? (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        // Check if origin is in allowed list
+        if (allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+        
+        // Allow all Vercel deployments (for admin frontend)
+        if (origin.match(/^https:\/\/.*\.vercel\.app$/)) {
+          return callback(null, true);
+        }
+        
+        // Reject other origins
+        callback(new Error('Not allowed by CORS'));
+      }
     : true, // Allow all origins in development
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
