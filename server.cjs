@@ -14,12 +14,17 @@ require('dotenv').config({
 const fareRoutes = require('./routes/fare.cjs');
 const bookingRoutes = require('./routes/booking.cjs');
 const contactRoutes = require('./routes/contact.cjs');
+const driverRoutes = require('./routes/driver.cjs');
+const vehicleRoutes = require('./routes/vehicle.cjs');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
-// Security middleware
-app.use(helmet());
+// Security middleware (configure helmet to allow CORS)
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginEmbedderPolicy: false
+}));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -37,10 +42,10 @@ app.use(cors({
         'https://zingcab.in',
         'https://www.zingcab.in'
       ] 
-    : '*',
+    : true, // Allow all origins in development
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Referer', 'User-Agent']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Referer', 'User-Agent', 'Accept', 'Origin', 'X-Requested-With', 'DNT', 'sec-ch-ua', 'sec-ch-ua-mobile', 'sec-ch-ua-platform']
 }));
 
 // Body parsing middleware
@@ -61,6 +66,8 @@ app.get('/health', (req, res) => {
 app.use('/api/fare', fareRoutes);
 app.use('/api/booking', bookingRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/driver', driverRoutes);
+app.use('/api/vehicle', vehicleRoutes);
 
 // 404 handler (catch-all for unmatched routes)
 app.use((req, res) => {
