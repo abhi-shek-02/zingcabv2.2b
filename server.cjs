@@ -40,7 +40,10 @@ app.use(cors({
     ? [
         'https://magenta-fairy-a6613c.netlify.app', 
         'https://zingcab.in',
-        'https://www.zingcab.in'
+        'https://www.zingcab.in',
+        // Vercel admin frontend URLs (wildcard for all Vercel deployments)
+        /^https:\/\/.*\.vercel\.app$/,
+        /^https:\/\/admin-zingcab.*\.vercel\.app$/
       ] 
     : true, // Allow all origins in development
   credentials: true,
