@@ -20,6 +20,10 @@ const vehicleRoutes = require('./routes/vehicle.cjs');
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+// Trust proxy (required when behind nginx reverse proxy)
+// This fixes express-rate-limit X-Forwarded-For header errors
+app.set('trust proxy', true);
+
 // Security middleware (configure helmet to allow CORS)
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
