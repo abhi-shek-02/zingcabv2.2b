@@ -38,7 +38,10 @@ app.use(limiter);
 const allowedOrigins = [
   'https://magenta-fairy-a6613c.netlify.app', 
   'https://zingcab.in',
-  'https://www.zingcab.in'
+  'https://www.zingcab.in',
+  // Vercel admin frontend URLs
+  'https://zingcab-admin.vercel.app',
+  'https://zingcab-admin-4qtnn541f-zingcab.vercel.app'
 ];
 
 app.use(cors({
