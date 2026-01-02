@@ -321,7 +321,9 @@ router.put('/:id', async (req, res) => {
       car_type,
       km_limit,
       booking_source,
-      rental_booking_type
+      rental_booking_type,
+      driver_id,
+      vehicle_id
     } = req.body;
 
     if (!id) {
@@ -514,6 +516,35 @@ router.put('/:id', async (req, res) => {
       updateData.rental_booking_type = rental_booking_type ? rental_booking_type.trim() : null;
     }
 
+    // Driver and vehicle assignment updates
+    if (driver_id !== undefined) {
+      // Allow null to unassign driver, or a valid UUID string
+      if (driver_id === null || driver_id === '') {
+        updateData.driver_id = null;
+      } else if (typeof driver_id === 'string' && driver_id.trim() !== '') {
+        updateData.driver_id = driver_id.trim();
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'driver_id must be a valid UUID string or null'
+        });
+      }
+    }
+
+    if (vehicle_id !== undefined) {
+      // Allow null to unassign vehicle, or a valid UUID string
+      if (vehicle_id === null || vehicle_id === '') {
+        updateData.vehicle_id = null;
+      } else if (typeof vehicle_id === 'string' && vehicle_id.trim() !== '') {
+        updateData.vehicle_id = vehicle_id.trim();
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'vehicle_id must be a valid UUID string or null'
+        });
+      }
+    }
+
     // Check if there are any fields to update
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({
@@ -538,6 +569,9 @@ router.put('/:id', async (req, res) => {
     }
 
     // Update booking using booking_id
+    console.log('Attempting to update booking:', id);
+    console.log('Update data:', JSON.stringify(updateData, null, 2));
+    
     const { data, error } = await supabase
       .from('bookingtable')
       .update(updateData)
@@ -547,12 +581,23 @@ router.put('/:id', async (req, res) => {
 
     if (error) {
       console.error('Supabase booking update error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      console.error('Update data:', JSON.stringify(updateData, null, 2));
+      console.error('Booking ID:', id);
       return res.status(500).json({
         success: false,
         message: 'Failed to update booking',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        error: error.message || JSON.stringify(error),
+        details: process.env.NODE_ENV === 'development' ? {
+          code: error.code,
+          details: error.details,
+          hint: error.hint,
+          message: error.message
+        } : undefined
       });
     }
+    
+    console.log('Booking updated successfully:', data);
 
     res.status(200).json({
       success: true,
