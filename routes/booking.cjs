@@ -323,7 +323,10 @@ router.put('/:id', async (req, res) => {
       booking_source,
       rental_booking_type,
       driver_id,
-      vehicle_id
+      vehicle_id,
+      driver_name,
+      driver_mobile,
+      vehicle_number
     } = req.body;
 
     if (!id) {
@@ -517,12 +520,44 @@ router.put('/:id', async (req, res) => {
     }
 
     // Driver and vehicle assignment updates
+    // Handle driver_id - fetch driver details if provided
     if (driver_id !== undefined) {
       // Allow null to unassign driver, or a valid UUID string
       if (driver_id === null || driver_id === '') {
         updateData.driver_id = null;
+        // Clear driver details when unassigning
+        updateData.driver_name = null;
+        updateData.driver_mobile = null;
       } else if (typeof driver_id === 'string' && driver_id.trim() !== '') {
         updateData.driver_id = driver_id.trim();
+        
+        // Fetch driver details to populate driver_name and driver_mobile
+        try {
+          const { data: driverData, error: driverError } = await supabase
+            .from('drivers')
+            .select('name, phone')
+            .eq('id', driver_id.trim())
+            .single();
+          
+          if (driverError) {
+            console.error('Error fetching driver:', driverError);
+            return res.status(400).json({
+              success: false,
+              message: `Driver not found with ID: ${driver_id}`
+            });
+          }
+          
+          if (driverData) {
+            updateData.driver_name = driverData.name;
+            updateData.driver_mobile = driverData.phone;
+          }
+        } catch (driverFetchError) {
+          console.error('Error fetching driver details:', driverFetchError);
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch driver details'
+          });
+        }
       } else {
         return res.status(400).json({
           success: false,
@@ -531,18 +566,62 @@ router.put('/:id', async (req, res) => {
       }
     }
 
+    // Handle vehicle_id - fetch vehicle details if provided
     if (vehicle_id !== undefined) {
       // Allow null to unassign vehicle, or a valid UUID string
       if (vehicle_id === null || vehicle_id === '') {
         updateData.vehicle_id = null;
+        // Clear vehicle details when unassigning
+        updateData.vehicle_number = null;
       } else if (typeof vehicle_id === 'string' && vehicle_id.trim() !== '') {
         updateData.vehicle_id = vehicle_id.trim();
+        
+        // Fetch vehicle details to populate vehicle_number
+        try {
+          const { data: vehicleData, error: vehicleError } = await supabase
+            .from('vehicles')
+            .select('registration_number')
+            .eq('id', vehicle_id.trim())
+            .single();
+          
+          if (vehicleError) {
+            console.error('Error fetching vehicle:', vehicleError);
+            return res.status(400).json({
+              success: false,
+              message: `Vehicle not found with ID: ${vehicle_id}`
+            });
+          }
+          
+          if (vehicleData) {
+            updateData.vehicle_number = vehicleData.registration_number;
+          }
+        } catch (vehicleFetchError) {
+          console.error('Error fetching vehicle details:', vehicleFetchError);
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch vehicle details'
+          });
+        }
       } else {
         return res.status(400).json({
           success: false,
           message: 'vehicle_id must be a valid UUID string or null'
         });
       }
+    }
+
+    // Allow direct updates to driver_name, driver_mobile, and vehicle_number
+    // (These can be updated independently or will override the fetched values)
+    if (driver_name !== undefined) {
+      updateData.driver_name = driver_name ? driver_name.trim() : null;
+    }
+
+    if (driver_mobile !== undefined) {
+      updateData.driver_mobile = driver_mobile ? String(driver_mobile).trim() : null;
+    }
+
+    if (vehicle_number !== undefined) {
+      updateData.vehicle_number = vehicle_number ? vehicle_number.trim() : null;
     }
 
     // Check if there are any fields to update
